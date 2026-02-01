@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Votantes</title>
+    
+    <!-- Importamos Bootstrap y Iconos igual que en Base_de_Datos.html -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- FontAwesome opcional -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS IDÉNTICOS A BASE_DE_DATOS.HTML --- */
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #2563eb;
+            --btn-main-color: #e3b707;
+            --btn-hover-color: #eab308;
+            --text-light-color: #fff;
+            --text-dark-color: #333;
+            --background-gradient: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+            --font-stack: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background: var(--background-gradient);
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .main-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 1rem; 
+            width: 100%;
+        }
+
+        .table-container {
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            min-height: 80vh;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+            color: #343a40;
+        }
+
+        .subtitle {
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 1.5rem; 
+            font-size: 1rem;
+        }
+
+        /* Tabla Estilo Bootstrap personalizado */
+        thead th {
+            background-color: #0d6efd !important; /* Azul Bootstrap */
+            color: white !important;
+            text-align: center;
+        }
+
+        tbody td {
+            vertical-align: middle;
+        }
+
+        /* Modal Personalizado con estilo Bootstrap */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1050; /* Z-index de bootstrap modals */
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .custom-modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        /* Estilos de Impresión */
+        @media print {
+            body {
+                background: white !important;
+                padding: 0;
+                color: black;
+            }
+            .header-actions, .actions-col, .btn, .no-print {
+                display: none !important;
+            }
+            .table-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            thead th {
+                background-color: #eee !important;
+                color: black !important;
+                border: 1px solid #000;
+            }
+            td {
+                border: 1px solid #000;
+            }
+        }
+        
+        #loading { text-align: center; font-style: italic; color: #666; margin: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="table-container">
+        
+        <!-- Botonera Superior -->
+        <div class="d-flex justify-content-between align-items-center mb-4 header-actions">
+            <a href="/base_de_datos" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+            
+            <div class="d-flex gap-2">
+                <button onclick="openModal()" class="btn btn-success">
+                    <i class="bi bi-person-plus-fill"></i> Agregar Persona
+                </button>
+                <button onclick="window.print()" class="btn btn-info text-white">
+                    <i class="bi bi-printer-fill"></i> Imprimir
+                </button>
+            </div>
+        </div>
+
+        <h1>Listado de Votantes</h1>
+        <p class="subtitle">Residentes mayores de 18 años con Cédula de Identidad registrada</p>
+
+        <div id="loading">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Cargando datos...</p>
+        </div>
+
+        <table id="votersTable" class="table table-hover table-striped table-bordered" style="display:none;">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">N°</th>
+                    <th>Ubicación (Mzna / Torre / Casa)</th>
+                    <th>Nombre Completo</th>
+                    <th>Cédula</th>
+                    <th class="actions-col" style="width: 100px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Filas generadas por JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL PARA AGREGAR PERSONA -->
+<div id="addModal" class="modal-overlay">
+    <div class="custom-modal">
+        <h4 class="mb-3 text-primary"><i class="bi bi-person-add"></i> Agregar Nueva Persona</h4>
+        <form id="addForm">
+            <div class="mb-3">
+                <label class="form-label">Comunidad / Sector:</label>
+                <input type="text" class="form-control" id="inputComunidad" placeholder="Ej: Rio Aro" required>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label class="form-label">Torre / Calle:</label>
+                    <input type="text" class="form-control" id="inputTorre" placeholder="Ej: 15" required>
+                </div>
+                <div class="col">
+                    <label class="form-label">Casa / Apto:</label>
+                    <input type="text" class="form-control" id="inputCasa" placeholder="Ej: A-1" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nombre Completo:</label>
+                <input type="text" class="form-control" id="inputNombre" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Cédula de Identidad:</label>
+                <input type="text" class="form-control" id="inputCedula" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Edad:</label>
+                <input type="number" class="form-control" id="inputEdad" min="18" value="18" required>
+                <div class="form-text text-danger">* Debe ser 18 o más para aparecer en esta lista.</div>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // --- CONFIGURACIÓN DE COLUMNAS (Ajusta los strings si tus cabeceras de Excel son distintas) ---
+    const COL_COMUNIDAD = "comunidad";
+    const COL_TORRE = "torre";
+    const COL_CASA = "casa o apto";
+    const COL_NOMBRE = "nombre completo"; 
+    const COL_CEDULA = "cedula de identidad";
+    const COL_EDAD = "edad";
+
+    // --- CARGAR DATOS ---
+    function loadData() {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('votersTable').style.display = 'none';
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        fetch('/api/excel?length=10000&start=0&draw=1')
+            .then(response => response.json())
+            .then(data => {
+                const records = data.data;
+                let counter = 1;
+
+                records.forEach(person => {
+                    let edadStr = person[COL_EDAD] || "0";
+                    let edad = parseInt(edadStr.replace(/\D/g, ''));
+
+                    // Filtro: Mayor de 18 y con cédula
+                    if (edad >= 18 && person[COL_CEDULA] && person[COL_CEDULA].trim() !== "") {
+                        
+                        let ubicacion = [];
+                        if(person[COL_COMUNIDAD]) ubicacion.push(person[COL_COMUNIDAD]);
+                        if(person[COL_TORRE]) ubicacion.push(person[COL_TORRE]);
+                        if(person[COL_CASA]) ubicacion.push(person[COL_CASA]);
+                        let direccionFinal = ubicacion.join(" / ") || "---";
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="text-center fw-bold">${counter++}</td>
+                            <td>${direccionFinal}</td>
+                            <td>${person[COL_NOMBRE] || ""}</td>
+                            <td>${person[COL_CEDULA]}</td>
+                            <td class="actions-col text-center">
+                                <button onclick="deleteRow('${person['__row']}')" class="btn btn-sm btn-danger" title="Eliminar">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                });
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('votersTable').style.display = 'table';
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('loading').innerHTML = "<p class='text-danger'>Error al cargar los datos.</p>";
+            });
+    }
+
+    // --- FUNCION ELIMINAR ---
+    function deleteRow(rowId) {
+        if(!confirm("¿Estás seguro de que deseas eliminar a esta persona de la base de datos?")) return;
+
+        fetch('/api/delete-row', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ __row: parseInt(rowId) })
+        })
+        .then(res => {
+            if(res.ok) {
+                alert("Persona eliminada correctamente.");
+                loadData(); 
+            } else {
+                alert("Error al eliminar.");
+            }
+        })
+        .catch(err => alert("Error de conexión: " + err));
+    }
+
+    // --- FUNCIONES DEL MODAL (AGREGAR) ---
+    function openModal() {
+        document.getElementById('addModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('addModal').style.display = 'none';
+        document.getElementById('addForm').reset();
+    }
+
+    // Manejar envío del formulario
+    document.getElementById('addForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const nuevaPersona = {};
+        
+        // Asignación de valores
+        nuevaPersona["Comunidad"] = document.getElementById('inputComunidad').value;
+        nuevaPersona["Torre"] = document.getElementById('inputTorre').value;
+        nuevaPersona["Casa o Apto"] = document.getElementById('inputCasa').value;
+        nuevaPersona["Nombre completo"] = document.getElementById('inputNombre').value;
+        nuevaPersona["Cedula de identidad"] = document.getElementById('inputCedula').value;
+        nuevaPersona["Edad"] = document.getElementById('inputEdad').value;
+
+        fetch('/api/update-excel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ datos: [nuevaPersona] })
+        })
+        .then(res => {
+            if(res.ok) {
+                alert("Persona agregada exitosamente.");
+                closeModal();
+                loadData();
+            } else {
+                alert("Error al guardar en la base de datos.");
+            }
+        })
+        .catch(err => alert("Error de conexión: " + err));
+    });
+
+    // Cargar datos al iniciar
+    loadData();
+
+    // Cerrar modal al hacer click fuera
+    window.onclick = function(event) {
+        const modal = document.getElementById('addModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+/* =========================================
+              Navegación y Encabezado
+    ========================================= */
+    .navbar {
+        background: rgba(0, 0, 0, 0.6);
+        padding-bottom: 12px;
+        padding-top: 12px;
+    }
+    .nav-link {
+        color: var(--text-light-color);
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }

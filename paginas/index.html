@@ -1,0 +1,716 @@
+<!-- 960 - 1024 - 1328 -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rio Aro Portal</title>
+</head>
+<style>
+    *{
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+        ::before{
+            content: "";
+        }
+        ::after{
+            content: "";
+        }
+        font-family: 'Segoe UI', Arial, sans-serif;;
+
+        h1,
+        h2, 
+        h3,
+        h4, 
+        h5,
+        h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        line-height: 1.2;
+        color: #fff;
+        }
+    }
+
+    @keyframes aparecer {
+        from{
+            opacity: 0;
+        }to{
+            opacity: 1;
+        }
+    }
+
+    html{
+        scroll-behavior: smooth;
+    }
+
+    body{
+        background-image: linear-gradient(120deg, #3b82f6, #1145b4);
+
+    }
+
+    body:has(.content-btn a:nth-child(1):hover)::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%;
+        height: 110%;
+        background: linear-gradient(120deg, #1ab49c, #0da08a);
+        z-index: -1;
+        animation: aparecer 0.5s forwards;
+    }
+
+    body:has(.content-btn a:nth-child(2):hover)::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%;
+        height: 110%;
+        background: linear-gradient(120deg, #5d2c6c, #441752); 
+        z-index: -1;
+        animation: aparecer 0.5s forwards;
+    }
+
+    body:has(.content-btn a:nth-child(3):hover)::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%;
+        height: 110%;
+        background: linear-gradient(120deg, darkorange, #dd7a00); 
+        z-index: -1;
+        animation: aparecer 0.5s forwards;
+    }
+
+    body:has(.content-btn a:nth-child(4):hover)::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%;
+        height: 110%;
+        background: linear-gradient(120deg, rgb(42, 170, 42), green); 
+        z-index: -1;
+        animation: aparecer 0.5s forwards;
+    }
+
+    body:has(.content-btn a:nth-child(5):hover)::after{
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%;
+        height: 110%;
+        background-image: linear-gradient(120deg, rgb(248, 56, 56), rgb(218, 0, 0)); 
+        z-index: -1;
+        animation: aparecer 0.5s forwards;
+    }
+
+    header{
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(16px);
+        padding: 12px 10rem;
+        position: sticky;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 2;
+    }
+
+    .content-header{
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .content-header::after{
+        display: none;
+    }
+
+    .content-header::before{
+        display: none;
+    }
+
+    .content-header a{
+        text-decoration: none;
+        color: #fff;
+        font-size: 1.25rem;
+        padding: 8px 15px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .content-header a:hover{
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .content-header nav{
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        width: fit-content;
+        padding: 8px 15px;
+        border-radius: 8px;
+    }
+
+    .content-header li {
+        font-size: 1.25rem;
+    }
+
+    .content-login{
+        font-size:  1.25rem;
+        color: rgba(0, 0, 0, 1);
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all ease .3s;
+    }
+
+    .wapper-login{
+        display: flex;
+        align-items: center;
+    }
+
+    .content-sincronizador{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    .btn-pull{
+        width: fit-content;   
+        padding: .5em;
+        border-radius: 50%;
+        border: solid 2px #fff;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        margin-right: 10px;
+        background-color: transparent;
+        transition: all ease .3s;
+    }
+    .btn-pull:hover{
+        scale: 1.05;
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-push{
+        width: fit-content;   
+        padding: .5em;
+        border-radius: 50%;
+        border: solid 2px #fff;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        margin-right: 14px;
+        background-color: transparent;
+        transition: all ease .3s;
+    }
+    .btn-push:hover{
+        scale: 1.05;
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .user-component::after,.user-component::before{
+        display: none;
+    }
+
+    .user-icon{
+        border-radius: 50%;
+        border: solid 2px #fff;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        transition: all ease .3s;
+    }
+
+    .user-icon:hover{
+        scale: 1.05;
+    }
+
+    .user-status{
+        position: absolute;
+        display: block;
+        width: fit-content;
+        list-style: none;
+        background-color: #fff;
+        color: #333;
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        font-size: 1.25rem;
+        padding: .5rem;
+        opacity: 0;
+        transition: all ease .3s;
+        transform: translateY(15px);
+    }
+
+    .user-status li{
+        padding-bottom: .5rem;
+    }
+
+    .user-status li a{
+        color: black;
+        font-weight: 600;
+        padding: 0px;
+        border-radius: 0px;
+    }
+
+    .user-status li a:hover{
+        background-color: transparent;
+        transform: scale(1);
+    }
+
+    .user-component:hover .user-status{
+        opacity: 1;
+        transform: translateY(0px);
+    }
+
+    main{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        padding: min(6em, 2%);
+        height: 90vh;
+        gap: 4%;
+    }
+    main::after{
+        display: none;
+    }
+    main::before{
+        display: none;
+    }
+
+    main:has(.content-btn a:nth-child(1):hover) .content-tex p:nth-child(1){
+        opacity: 1;    
+    }
+
+    main:has(.content-btn a:nth-child(2):hover) .content-tex p:nth-child(2){
+        opacity: 1;
+    }
+
+    main:has(.content-btn a:nth-child(3):hover) .content-tex p:nth-child(3){
+        opacity: 1;
+    }
+    
+    main:has(.content-btn a:nth-child(4):hover) .content-tex p:nth-child(4){
+        opacity: 1;
+    }
+    
+    main:has(.content-btn a:nth-child(5):hover) .content-tex p:nth-child(5){
+        opacity: 1;
+    }
+
+    .wapper-hero{
+        width: 100%;
+        transform: translateY(-40%) ;
+    }
+
+    .wapper-hero::after{
+        display: none;
+    }
+
+    .wapper-hero::before{
+        display: none;
+    }
+
+    .hero div{
+        width: fit-content;
+        margin: auto;
+    }
+
+    .hero h1{
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+        color: #fff;
+        margin-block-start: 0.67em;
+        margin-block-end: 0.67em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        font-weight: bold;
+        unicode-bidi: isolate;
+        text-align: center;
+    }
+
+    .wapper-btn{
+        width: 100%;
+        background-color: #ffffff;
+        color: #333;
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        font-size: 1.5rem;
+        padding: 2.5rem;
+    }
+    
+    .wapper-btn h1{
+        color: inherit;
+        font-size: 3rem;
+        font-weight: 700;
+    }
+
+    .wapper-btn p{
+        opacity: 0.8;
+        margin-bottom: 2.5rem;
+    }
+
+    .content-btn{
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px,1.5fr));
+        gap: 20px;
+    }
+    .content-btn::before{
+        display: none;
+    }
+    
+    .content-btn button{
+        width: 100%;   
+        height: 150px;
+        padding: .3em;
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        color: #212529; 
+        border: 1px solid #ba9501;
+        background-color: #e3b707;
+        border-radius: 0.5rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .content-btn a:nth-child(2){
+        button{
+            font-size: 1.7rem;
+        }
+    }
+
+    .content-btn button:hover{
+        background-color: #eab308;
+        transform: translateY(-2px);
+        color: #00000077;
+    }
+
+    .content-tex{
+        width: 100%;
+        position: relative;
+    }
+
+    .content-tex p{
+        position: absolute;
+        color: #fff;
+        text-align: center;
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    section{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px,1fr));
+        gap: 2rem;
+        width: 100%;
+        padding: 4rem 16rem;
+        background: #f8f9fa;
+        color: #333;
+        scroll-margin-top: 70px ;
+    }
+
+    section::before{
+        display: none;
+    }
+
+    section article{
+        text-align: center;
+        padding: 2rem 0rem;
+        margin-inline: calc(1.5rem * .5);
+        transition: transform 0.2s;
+    }
+
+    section article:hover{ 
+        transform: translateY(-5px); 
+    }
+
+    .icon{
+        color: #eab308;
+    }
+
+    section article h5{
+        font-size: 1.25rem;
+        margin-bottom: .5rem;
+        line-height: 1.2;
+        font-weight: 500;
+        color: inherit;
+    }
+
+    section article p{
+        margin-top: 0;
+        margin-bottom: 1rem;
+        margin-block-start: 1em;
+        margin-block-end: 1em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        unicode-bidi: isolate;
+        line-height: 1.5;
+    }
+
+    footer{
+        background: #212529;
+        color: #aaa;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    footer a{
+        color: #fff;
+        text-decoration: none;
+    }
+
+    @media screen and (min-width: 1812px){
+        .content-btn{
+            grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+        }
+    }
+
+    @media screen and (max-width: 1400px){
+        main{
+            gap: 1%;
+        }
+
+        .wapper-btn{
+            font-size: 1rem;
+            padding: 1.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .wapper-btn p{
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-btn{
+            grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+        }
+
+        .content-btn button{
+            height:150px;
+        }
+
+        .content-tex p{
+            padding-right: 1em;
+        }
+    }
+
+    @media screen and (max-width: 1030px) {
+        main{
+            gap: 0%;
+        }
+
+        .hero h1{
+            font-size: 2.5rem;
+        }
+
+        .wapper-btn{
+            font-size: 1rem;
+            padding: 1rem;
+        }
+    
+        .wapper-btn h1{
+            font-size: 3rem;
+        }
+
+        .wapper-btn p{
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-btn{
+            width: 100%;
+            grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+            gap: 16px;
+        }
+
+        .content-btn button{
+            width: 100%;   
+            height:120px;
+            font-size: 1.5rem;
+        }
+
+        .content-tex p{
+            padding-right: 1em;
+        }
+    }
+
+</style>
+
+<body>
+<header>
+    <div class="content-header">
+        <a href=""> <i class="bi bi-cpu-fill"></i> RIO ARO Portal</a>
+        <nav>   
+            <div class="content-login">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="wapper-login">
+                            <!-- COMPONENTE 1: SINCRONIZACIÓN (ESTILO GIT) -->
+                        <li class="content-sincronizador" id="sync-component" style="display: none;">
+                            <div role="group">
+                                <button onclick="performPull()" class="btn-pull" title="Bajar de Drive (Pull)">
+                                    <img src="/assets/icons/pull.png" alt="bajar" width="32px" height="32px">
+                                </button>
+                                <button onclick="performPush()" id="btn-push" class="btn-push" title="Subir a Drive (Push)">
+                                    <img src="/assets/icons/push.png" alt="bajar" width="32px" height="32px"> 
+                                </button>
+                            </div>
+                        </li>
+                        <!-- COMPONENTE 2: USUARIO -->
+                        <li class="user-component" id="user-component">
+                            <img class="user-icon" id="user-pic" src="" alt="" width="54px" height="54px">
+                            <ul class="user-status">
+                                <li><span id="user-name">Cargando...</span></li>
+                                <li><span class="dropdown-item-text text-muted" id="user-role"></span></li>
+                                <hr>
+                                <li><a class="dropdown-item text-danger" href="/logout">Cerrar Sesión</a></li>
+                            </ul>
+                        </li>
+                        <!-- Botón de Login (si no está logueado) -->
+                        <li id="login-item" style="display: none;">
+                            <a class="navbar-brand btn btn-danger" href="/login">Login con Google</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    checkUserStatus();
+                });
+
+                function checkUserStatus() {
+                    fetch('/api/user/status')
+                    .then(res => res.json())
+                    .then(user => {
+                        if (user.logged) {
+                            document.getElementById('user-component').style.display = 'block';
+                            document.getElementById('sync-component').style.display = 'block';
+                            document.getElementById('login-item').style.display = 'none';
+                            
+                            document.getElementById('user-name').innerText = user.name;
+                            document.getElementById('user-pic').src = user.picture;
+                            document.getElementById('user-role').innerText = "Rol: " + user.role;
+                            
+                        checkSyncDifference(); // Inicia revisión de Git
+                        } else {
+                            document.getElementById('user-component').style.display = 'none';
+                            document.getElementById('sync-component').style.display = 'none';
+                            document.getElementById('login-item').style.display = 'block';
+                        }
+                    });
+                }
+
+                function checkSyncDifference() {
+                    // Aquí el backend compararía las fechas (local vs remoto)
+                    fetch('/api/sync/status')
+                    .then(res => res.json())
+                    .then(status => {
+                        const icon = document.getElementById('sync-icon');
+                        const text = document.getElementById('sync-text');
+                        
+                        if (status.needsPull) {
+                            text.innerText = "Nueva versión en Drive";
+                            icon.className = "bi bi-cloud-arrow-down-fill text-warning";
+                        } else if (status.needsPush) {
+                            text.innerText = "Cambios locales pendientes";
+                            icon.className = "bi bi-cloud-arrow-up-fill text-info";
+                        }
+                    });
+                }
+
+                function performPush() {
+                    if(!confirm("¿Deseas subir los cambios locales a Google Drive?")) return;
+                    fetch('/api/sync/push', { method: 'POST' })
+                    .then(res => { if(res.ok) alert("¡Subida exitosa!"); location.reload(); });
+                }
+
+                function performPull() {
+                    if(!confirm("¿Deseas descargar la versión de Google Drive? Se perderán los cambios locales no subidos.")) return;
+                    fetch('/api/sync/pull', { method: 'POST' })
+                    .then(res => { if(res.ok) alert("¡Descarga exitosa!"); location.reload(); });
+                }
+            </script>
+        </nav>
+    </div>
+</header>
+    
+    <main>
+        <div class="wapper-hero">
+            <div class="hero">
+                <div>
+                    <img src="/assets/logo/logo.png" alt="logo" width="200px" height="190.23px">
+                </div>
+                <h1>RIO ARO PORTAL</h1>
+            </div>
+        
+            <div class="content-tex">
+                <p>Gestiona y administra la información de los miembros de tu comunidad de forma sencilla. Filtra, busca y actualiza registros con facilidad y seguridad.</p>
+                <p>Se encarga de recopilar y presentar de forma resumida los datos clave de una comunidad (nucleos familiares, comunidad, N° de casa/apartamento, etc.)</p>
+                <p>Permite a los equipos documentar, clasificar y rastrear cada modificación, característica nueva y corrección de errores de forma centralizada.</p>
+                <p>Organiza y consulta eventos, reuniones y actividades comunitarias. Recibe recordatorios y mantente al día con lo que sucede en tu comunidad.</p>
+                <p>Guarda y comparte imágenes de eventos, actividades y situaciones importantes de la comunidad. Mantén un registro visual de la historia local.</p>
+            </div>
+        </div>
+
+        <div class="wapper-btn">
+            <h1>Bienvenido</h1>
+            <p>Gestiona tu comunidad de manera facil e intuitiva</p>
+            
+            <div class="content-btn">
+                <a href="/base_de_datos"><button>Base De Datos</button></a>
+                <a href="/comunidades"><button>Jerarquia Habitacional</button></a>
+                <a href="/historia"><button>Historial</button></a>
+                <a href="/calendario"><button>Calendario</button></a>
+                <a href="/galeria"><button>Galeria</button></a>
+            </div>
+        </div>
+
+    </main>
+
+    <section id="funciones">
+        <article>
+            <img src="/assets/icons/datos.png" alt="base de datos" width="36px" height="36px">
+            <h5>Base de Datos</h5>
+            <p>Gestiona y administra la información de los miembros de tu comunidad de forma sencilla. Filtra, busca y actualiza registros con facilidad y seguridad.</p>
+        </article>
+
+        <article>
+            <img src="/assets/icons/calendario.png" alt="calendario" width="36px" height="36px">
+            <h5>Calendario</h5>
+            <p>Organiza y consulta eventos, reuniones y actividades comunitarias. Recibe recordatorios y mantente al día con lo que sucede en tu comunidad.</p>
+        </article>
+
+        <article>
+            <img src="/assets/icons/galeria.png" alt="galeria" width="36px" height="36px">
+            <h5>Galería</h5>
+            <p>Guarda y comparte imágenes de eventos, actividades y situaciones importantes de la comunidad. Mantén un registro visual de la historia local.</p>
+        </article>
+
+        <article>
+            <img src="/assets/icons/vista rapida.png" alt="vista rapida" width="36px" height="36px">
+            <h5>Jerarquia Habitacional</h5>
+            <p>Se encarga de recopilar y presentar de forma resumida los datos clave de una comunidad (nucleos familiares, comunidad, N° de casa/apartamento, etc.)</p>
+        </article>
+
+        <article>
+            <img src="/assets/icons/historial.png" alt="historial" width="36px" height="36px">
+            <h5>Historial</h5>
+            <p>Permite a los equipos documentar, clasificar y rastrear cada modificación, característica nueva y corrección de errores de forma centralizada.</p>
+        </article>
+
+    </section>
+    <footer id="contacto">
+        © 2025 Consejo Comunal Octava Estrella de Guayana —
+        <a href="mailto:info@rioaro.org">Contacto</a>
+    </footer>
+</body>
+</html>

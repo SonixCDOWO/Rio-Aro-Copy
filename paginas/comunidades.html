@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jerarquía de Comunidades</title>
+
+  <!-- jQuery, Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/Navs&Headers.css">
+  <link rel="stylesheet" href="/assets/css/Sidebar.css">
+
+  <!-- Estilos y scripts de jsTree -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+
+  <style>
+    :root {
+        --primary-color: #3b82f6;
+        --secondary-color: #2563eb;
+        --btn-main-color: #e3b707;
+        --btn-hover-color: #eab308;
+        --text-dark-color: #333;
+        --text-light-color: #fff;
+        --background-gradient: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+        --card-bg: #fff;
+        --font-stack: 'Segoe UI', Arial, sans-serif;
+    }
+    body {
+        font-family: var(--font-stack);
+        background: var(--background-gradient);
+        min-height: 100vh;
+        margin: 0;
+        color: var(--text-dark-color);
+        display: flex;
+        flex-direction: column;
+    }
+    .container2 {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    .content-container {
+      padding: 2rem;
+      background: #fff;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .content-header {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      color: #343a40;
+    }
+    #search-input{
+      border-color: #6c757d;
+    }
+    
+    #search-input::placeholder{
+      color: #333333a9;
+    }
+
+    .wapper-aside{
+      position: fixed;
+      width: 10px;
+      height: 100%;
+      display: grid;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .wapper-aside:hover .sidebar{
+        transform: translateX(0);
+    }
+
+    .sidebar{
+      z-index: 101;
+        position: absolute;
+        background-color: white;
+        width: max-content;
+        border-radius: 10px;
+        padding:  2rem 1rem;
+        transform: translateX(-90%);
+        transition: transform .3s ease;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.30);
+    }
+
+    .sidebar:hover .sidebar_element{
+        grid-template-columns: 40px 1fr;
+    }
+
+    .sidebar_list{
+        list-style: none;
+        padding: 0;
+        margin-bottom: 0;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        justify-content: center;
+    }
+
+    .sidebar_list a{
+      text-decoration: none;
+    }
+
+    .sidebar_element{
+        padding: .8rem 1.3rem;
+        border-radius: 10px;
+        display: grid;
+        align-items: center;
+        grid-template-columns: 40px 0fr;
+        color: #526581;
+
+        transition:  grid-template-columns .5s;
+    }
+
+    .sidebar_element:hover{
+        background-color: #e3b707;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .sidebar_element a{
+      text-decoration: none;
+      color: #526581;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .sidebar_element a:hover{
+      color: #fff;
+    }
+
+    .sidebar_icon{
+        width: 100%;
+        overflow: hidden;
+        justify-self: center;
+    }
+
+    .sidebar_text{
+        padding-left: 1.3rem;
+        text-wrap: nowrap;
+        font-size: 1.1rem;
+    }
+
+    .sidebar_hide{
+        overflow: hidden;
+    }
+
+    @media screen and (min-width: 1340px) and (max-width: 1360px){
+      .sidebar{
+        padding:  1rem .5rem;
+      }
+
+      .sidebar_list{
+        gap: .2rem;
+
+      }
+
+      .sidebar_element{
+        padding: .8rem .8rem;
+    }
+  }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Tu barra de navegación (copiada de tu otro archivo) -->
+    <div class="container">
+      <a class="navbar-brand nav-link" href="/">
+        <i class="bi bi-cpu-fill"></i> RIO ARO Portal
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/importar">Importar desde Excel</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wapper-aside">
+        <aside class="sidebar">
+        <ul class="sidebar_list">
+          
+          <a href="/index">
+            <li class="sidebar_element">
+                <img src="../assets/icons/regresar.svg" alt="home" class="sidebar_icon" width="35px" height="35px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Inicio</p>
+                </div>
+            </li>
+          </a>
+
+          <a href="/base_de_datos">
+            <li class="sidebar_element">
+                <img src="../assets/icons/datos-black.png" alt="estadisticas" class="sidebar_icon" width="20px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Base de datos</p>
+                </div>
+            </li>
+          </a>
+
+        <a href="/comunidades">
+              <li class="sidebar_element">
+                <img src="../assets/icons/vista rapida-black.png" alt="informe" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Jerarquia</p>
+                </div>
+            </li>
+            </a>
+            
+            <a href="/historia">
+            <li class="sidebar_element">
+                <img src="../assets/icons/historial.svg" alt="informe" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Historial</p>
+                </div>
+            </li>
+          </a>
+            
+          <a href="/calendario">
+            <li class="sidebar_element">
+                <img src="../assets/icons/calendario.svg" alt="calendario" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Calendario</p>
+                </div>
+            </li>
+          </a>           
+
+          <a href="/galeria">
+            <li class="sidebar_element">
+                <img src="../assets/icons/galeria.svg" alt="galeria" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Galeria</p>
+                </div>
+            </li>
+          </a>
+        </ul>
+    </aside>
+  </div>
+
+  <main>
+    <div class="container2">
+      <div class="content-container">
+        <h2 class="content-header">Jerarquia Habitacional</h2>
+        <p class="text-center mb-4">Haz clic en una casa/apto para ver sus habitantes.</p>
+        
+        <!-- Input para buscar en el árbol -->
+        <div class="input-group mb-3">
+    <input type="text" id="search-input" class="form-control" placeholder="Buscar por Comunidad, Torre o Casa/Apto...">
+    <button class="btn btn-outline-secondary" type="button" id="clear-search-btn">Limpiar</button>
+        </div>
+
+        <!-- Contenedor del Árbol -->
+        <div id="tree-container"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Bootstrap para mostrar a las personas -->
+  <div class="modal fade" id="peopleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-title">Habitantes del Hogar</h5>
+    
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    <a href="#" id="edit-household-btn" class="btn btn-primary">
+        <i class="bi bi-pencil-fill me-2"></i>Editar Hogar
+    </a>
+        </div>
+        <div class="modal-body" id="modal-body">
+          <!-- La tabla con las personas se insertará aquí -->
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+    $(function () {
+        const peopleModal = new bootstrap.Modal(document.getElementById('peopleModal'));
+        const treeElement = $('#tree-container');
+        const searchInput = $('#search-input'); // Guardamos una referencia al input
+
+        // Inicializa el árbol con la data de nuestra API
+        treeElement.jstree({
+            'core': {
+                'data': {
+                    'url': '/api/tree-data',
+                    'dataType': 'json'
+                },
+                // CORRECCIÓN: Volvemos al tema 'default' para que el resaltado funcione
+                'themes': { 'name': 'default', 'responsive': true, 'icons': true, 'stripes': true }
+            },
+            // MEJORA: Configuramos el plugin de búsqueda
+            'search': {
+                // Esto oculta todos los nodos que no coinciden con la búsqueda
+                'show_only_matches': true,
+                // Esto asegura que los padres de un nodo coincidente también se muestren
+                'show_only_matches_children': true 
+            },
+            'plugins': ['search', 'types'], 
+            'types': {
+                'default': { 'icon': 'bi bi-folder' },
+                'comunidad': { 'icon': 'bi bi-collection text-primary' },
+                'torre': { 'icon': 'bi bi-building text-info' },
+                'casa': { 'icon': 'bi bi-house-door-fill text-success' }
+            }
+        });
+
+        // Lógica para que el input de búsqueda funcione
+        let searchTimeout;
+        searchInput.on('keyup', function () {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function () {
+                const searchValue = searchInput.val();
+                treeElement.jstree(true).search(searchValue);
+            }, 250);
+        });
+
+        // --- NUEVO: Lógica para el botón de limpiar búsqueda ---
+        $('#clear-search-btn').on('click', function() {
+            // Limpia la búsqueda en el árbol, mostrando todos los nodos de nuevo
+            treeElement.jstree('clear_search');
+            // Limpia el texto del input
+            searchInput.val('');
+        });
+
+
+        // Evento que se dispara al seleccionar un nodo del árbol (sin cambios en la lógica)
+        treeElement.on('select_node.jstree', function (e, data) {
+            const node = data.node;
+            
+            if (node.type === 'casa') {
+                const instance = data.instance;
+                const casa = node.text.replace('Casa/Apto ', '');
+                const torre = instance.get_node(node.parents[0]).text.replace('Torre ', '');
+                const comunidad = instance.get_node(node.parents[1]).text;
+
+                const apiUrl = `/api/get-people?comunidad=${encodeURIComponent(comunidad)}&torre=${encodeURIComponent(torre)}&casa=${encodeURIComponent(casa)}`;
+
+                $.getJSON(apiUrl, function(people) {
+                    const modalBody = $('#modal-body');
+                    modalBody.empty();
+                    $('#modal-title').text(`Habitantes de: ${comunidad} - ${torre} - ${casa}`);
+                    const editUrl = `/editar-hogar?comunidad=${encodeURIComponent(comunidad)}&torre=${encodeURIComponent(torre)}&casa=${encodeURIComponent(casa)}`;
+$('#edit-household-btn').attr('href', editUrl);
+
+                    if (people && people.length > 0) {
+                        let table = '<table class="table table-striped table-bordered">';
+                        table += `<thead class="table-dark"><tr><th>Parentesco</th><th>Apellidos y Nombres</th><th>Documento de Identidad</th></tr></thead><tbody>`;
+                        people.forEach(p => {
+                            table += `<tr><td>${p.parentesco || ''}</td><td>${p.nombres || ''}</td><td>${p.documento || ''}</td></tr>`;
+                        });
+                        table += '</tbody></table>';
+                        modalBody.append(table);
+                    } else {
+                        modalBody.append('<p>No se encontraron habitantes para este hogar.</p>');
+                    }
+                    
+                    peopleModal.show();
+                });
+            }
+        });
+
+        // Limpiar la selección del árbol al cerrar el modal (sin cambios)
+        document.getElementById('peopleModal').addEventListener('hidden.bs.modal', function (event) {
+            treeElement.jstree('deselect_all');
+        });
+    });
+</script>
+</body>
+</html>

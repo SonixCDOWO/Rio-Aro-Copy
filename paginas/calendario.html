@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Actividades</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/librerias/fullcalendar/main.min.css">
+    <link rel="stylesheet" href="/assets/librerias/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/Navs&Headers.css">
+    <script src="/assets/librerias/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="/assets/librerias/fullcalendar/index.global.min.js" defer></script>
+
+    <link rel="stylesheet" href="/assets/css/Sidebar.css">
+    
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --btn-main-color: #e3b707;
+            --text-dark-color: #333;
+            --text-light-color: #fff;
+            --background-gradient: linear-gradient(120deg, var(--primary-color), #2563eb);
+            --card-bg: #fff;
+            --font-stack: 'Segoe UI', Arial, sans-serif;
+        }
+        body {
+            font-family: var(--font-stack);
+            background: var(--background-gradient);
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-dark-color);
+            display: flex;
+            flex-direction: column;
+        }
+        main.container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--btn-main-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #calendar {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.7);
+            color: var(--text-light-color);
+            margin-top: 20px;
+        }
+        footer a {
+            color: var(--btn-main-color);
+            text-decoration: none;
+        }
+
+    .wapper-aside{
+        position: fixed;
+        width: 10px;
+        height: 100%;
+        display: grid;
+        align-items: center;
+        z-index: 100;
+    }
+
+    .wapper-aside:hover .sidebar{
+        transform: translateX(0);
+    }
+
+    .sidebar{
+        z-index: 101;
+        position: absolute;
+        background-color: white;
+        width: max-content;
+        border-radius: 10px;
+        padding:  2rem 1rem;
+        transform: translateX(-90%);
+        transition: transform .3s ease;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.30);
+    }
+
+    .sidebar:hover .sidebar_element{
+        grid-template-columns: 40px 1fr;
+    }
+
+    .sidebar_list{
+        list-style: none;
+        padding: 0;
+        margin-bottom: 0;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        justify-content: center;
+    }
+
+    .sidebar_list a{
+        text-decoration: none;
+    }
+
+    .sidebar_element{
+        padding: .8rem 1.3rem;
+        border-radius: 10px;
+        display: grid;
+        align-items: center;
+        grid-template-columns: 40px 0fr;
+        color: #526581;
+
+        transition:  grid-template-columns .5s;
+    }
+
+    .sidebar_element:hover{
+        background-color: #e3b707;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .sidebar_element a{
+      text-decoration: none;
+      color: #526581;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .sidebar_element a:hover{
+      color: #fff;
+    }
+
+    .sidebar_icon{
+        width: 100%;
+        overflow: hidden;
+        justify-self: center;
+    }
+
+    .sidebar_text{
+        padding-left: 1.3rem;
+        text-wrap: nowrap;
+        font-size: 1.1rem;
+    }
+
+    .sidebar_hide{
+        overflow: hidden;
+    }
+
+    @media screen and (min-width: 1340px) and (max-width: 1360px){
+        .sidebar{
+            padding:  1rem .5rem;
+        }
+
+        .sidebar_list{
+            gap: .2rem;
+        }
+
+        .sidebar_element{
+            padding: .8rem .8rem;
+        }
+    }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand nav-link" href="/">
+                <i class="bi bi-cpu-fill"></i> RIO ARO Portal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="wapper-aside">
+        <aside class="sidebar">
+        <ul class="sidebar_list">
+          
+          <a href="/index">
+            <li class="sidebar_element">
+                <img src="../assets/icons/regresar.svg" alt="home" class="sidebar_icon" width="35px" height="35px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Inicio</p>
+                </div>
+            </li>
+          </a>
+
+          <a href="/base_de_datos">
+            <li class="sidebar_element">
+                <img src="../assets/icons/datos-black.png" alt="estadisticas" class="sidebar_icon" width="20px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Base de datos</p>
+                </div>
+            </li>
+          </a>
+
+          <a href="/comunidades">
+              <li class="sidebar_element">
+                <img src="../assets/icons/vista rapida-black.png" alt="informe" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Jerarquia</p>
+                </div>
+            </li>
+            </a>
+            
+            <a href="/historia">
+            <li class="sidebar_element">
+                <img src="../assets/icons/historial.svg" alt="informe" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Historial</p>
+                </div>
+            </li>
+          </a>
+            
+          <a href="/calendario">
+            <li class="sidebar_element">
+                <img src="../assets/icons/calendario.svg" alt="calendario" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Calendario</p>
+                </div>
+            </li>
+          </a>           
+
+          <a href="/galeria">
+            <li class="sidebar_element">
+                <img src="../assets/icons/galeria.svg" alt="galeria" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Galeria</p>
+                </div>
+            </li>
+          </a>
+        </ul>
+        </aside>
+    </div>
+
+    <main class="container">
+        <h1>Calendario de Actividades</h1>
+        <div id='calendar'></div>
+        <div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="activityModalLabel">Detalles de la Actividad</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="activityForm">
+                            <input type="hidden" id="activityId">
+                            <div class="mb-3">
+                                <label for="activityTitle" class="form-label">Título:</label>
+                                <input type="text" class="form-control" id="activityTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="activityDescription" class="form-label">Descripción:</label>
+                                <textarea class="form-control" id="activityDescription" rows="3"></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="activityStartDate" class="form-label">Fecha de Inicio:</label>
+                                    <input type="date" class="form-control" id="activityStartDate" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="activityEndDate" class="form-label">Fecha de Fin:</label>
+                                    <input type="date" class="form-control" id="activityEndDate">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="activityTime" class="form-label">Hora:</label>
+                                    <input type="time" class="form-control" id="activityTime">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="activityLocation" class="form-label">Ubicación:</label>
+                                    <input type="text" class="form-control" id="activityLocation">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="activityImage" class="form-label">Imagen del Evento:</label>
+                                <input type="file" class="form-control" id="activityImage" name="image" accept="image/png, image/jpeg, image/gif">
+                            </div>
+                            <div id="imagePreviewContainer" class="mb-3" style="display:none;">
+                                <label class="form-label">Imagen Actual:</label><br>
+                                <img id="currentActivityImage" src="" alt="Imagen del Evento" style="max-width: 100%; max-height: 200px; border-radius: 5px;">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-danger" id="deleteActivityBtn" style="display:none;">Eliminar</button>
+                        <button type="button" class="btn btn-primary" id="saveActivityBtn">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer id="contact">
+        © 2025 Consejo Comunal Octava Estrella de Guayana —
+        <a href="mailto:info@rioaro.org" class="text-decoration-none text-light">Contacto</a>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var activityModal = new bootstrap.Modal(document.getElementById('activityModal'));
+            var activityForm = document.getElementById('activityForm');
+            var activityIdInput = document.getElementById('activityId');
+            var activityTitleInput = document.getElementById('activityTitle');
+            var activityDescriptionInput = document.getElementById('activityDescription');
+            var activityStartDateInput = document.getElementById('activityStartDate');
+            var activityEndDateInput = document.getElementById('activityEndDate');
+            var activityTimeInput = document.getElementById('activityTime');
+            var activityLocationInput = document.getElementById('activityLocation');
+            var saveActivityBtn = document.getElementById('saveActivityBtn');
+            var deleteActivityBtn = document.getElementById('deleteActivityBtn');
+
+            var activityImageInput = document.getElementById('activityImage');
+            var imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            var currentActivityImage = document.getElementById('currentActivityImage');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                editable: true,
+                selectable: true,
+                events: '/api/activities',
+                select: function(info) {
+                    activityForm.reset();
+                    activityIdInput.value = '';
+                    activityStartDateInput.value = info.startStr.split('T')[0];
+                    activityEndDateInput.value = info.endStr ? new Date(new Date(info.endStr).setDate(new Date(info.endStr).getDate() - 1)).toISOString().split('T')[0] : '';
+                    
+                    imagePreviewContainer.style.display = 'none';
+                    currentActivityImage.src = '';
+
+                    document.getElementById('activityModalLabel').innerText = 'Agregar Actividad';
+                    saveActivityBtn.innerText = 'Agregar';
+                    deleteActivityBtn.style.display = 'none';
+                    activityModal.show();
+                },
+                eventClick: function(info) {
+                    activityForm.reset();
+                    activityIdInput.value = info.event.id;
+                    activityTitleInput.value = info.event.title;
+                    activityDescriptionInput.value = info.event.extendedProps.description || '';
+                    activityStartDateInput.value = info.event.startStr.split('T')[0];
+                    activityEndDateInput.value = info.event.endStr ? new Date(new Date(info.event.endStr).setDate(new Date(info.event.endStr).getDate() - 1)).toISOString().split('T')[0] : info.event.startStr.split('T')[0];
+                    activityTimeInput.value = info.event.extendedProps.time || '';
+                    activityLocationInput.value = info.event.extendedProps.location || '';
+                    
+                    const imageUrl = info.event.extendedProps.image;
+                    if (imageUrl) {
+                        imagePreviewContainer.style.display = 'block';
+                        currentActivityImage.src = `/assets/imagenes/${imageUrl}`;
+                    } else {
+                        imagePreviewContainer.style.display = 'none';
+                        currentActivityImage.src = '';
+                    }
+
+                    document.getElementById('activityModalLabel').innerText = 'Editar Actividad';
+                    saveActivityBtn.innerText = 'Guardar Cambios';
+                    deleteActivityBtn.style.display = 'block';
+                    activityModal.show();
+                },
+                eventDrop: function(info) {
+                    const eventData = {
+                        title: info.event.title,
+                        description: info.event.extendedProps.description,
+                        start_date: info.event.startStr.split('T')[0],
+                        end_date: info.event.endStr ? new Date(new Date(info.event.endStr).setDate(new Date(info.event.endStr).getDate() - 1)).toISOString().split('T')[0] : info.event.startStr.split('T')[0],
+                        time: info.event.extendedProps.time,
+                        location: info.event.extendedProps.location
+                    };
+                    fetch(`/api/activities/edit/${info.event.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(eventData)
+                    })
+                    .then(response => response.ok ? response.json() : Promise.reject())
+                    .then(data => {
+                        if (!data.success) { alert('Error al actualizar la actividad.'); info.revert(); }
+                    })
+                    .catch(() => { alert('Error de conexión.'); info.revert(); });
+                },
+                eventResize: function(info) {
+                    const eventData = {
+                        title: info.event.title,
+                        description: info.event.extendedProps.description,
+                        start_date: info.event.startStr.split('T')[0],
+                        end_date: info.event.endStr ? new Date(new Date(info.event.endStr).setDate(new Date(info.event.endStr).getDate() - 1)).toISOString().split('T')[0] : info.event.startStr.split('T')[0],
+                        time: info.event.extendedProps.time,
+                        location: info.event.extendedProps.location
+                    };
+                    fetch(`/api/activities/edit/${info.event.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(eventData)
+                    })
+                    .then(response => response.ok ? response.json() : Promise.reject())
+                    .then(data => {
+                        if (!data.success) { alert('Error al actualizar la actividad.'); info.revert(); }
+                    })
+                    .catch(() => { alert('Error de conexión.'); info.revert(); });
+                }
+            });
+            calendar.render();
+
+            saveActivityBtn.addEventListener('click', function() {
+                const activityId = activityIdInput.value;
+                const url = activityId ? `/api/activities/edit/${activityId}` : '/api/activities/add';
+                const method = activityId ? 'PUT' : 'POST';
+                if (!activityTitleInput.value || !activityStartDateInput.value) {
+                    alert('El título y la fecha de inicio son obligatorios.');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('title', activityTitleInput.value);
+                formData.append('description', activityDescriptionInput.value);
+                formData.append('start_date', activityStartDateInput.value);
+                formData.append('end_date', activityEndDateInput.value);
+                formData.append('time', activityTimeInput.value);
+                formData.append('location', activityLocationInput.value);
+
+                if (activityImageInput.files.length > 0) {
+                    formData.append('image', activityImageInput.files[0]);
+                }
+
+                fetch(url, {
+                    method: method,
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text || 'Error del servidor') });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        activityModal.hide();
+                        calendar.refetchEvents();
+                    } else {
+                        alert('Error: ' + (data.message || 'Error desconocido'));
+                    }
+                })
+                .catch(err => { alert('Error de conexión o del servidor: ' + err.message); });
+            });
+
+            deleteActivityBtn.addEventListener('click', function() {
+                const activityId = activityIdInput.value;
+                if (confirm('¿Eliminar esta actividad?')) {
+                    fetch(`/api/activities/delete/${activityId}`, { method: 'DELETE' })
+                    .then(response => response.ok ? response.json() : Promise.reject())
+                    .then(data => {
+                        if (data.success) {
+                            activityModal.hide();
+                            calendar.refetchEvents();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(() => { alert('Error de conexión.'); });
+                }
+            });
+
+            // ===================================================
+            // INICIO: LÓGICA DE NOTIFICACIONES
+            // ===================================================
+            const notifiedEventIds = new Set();
+
+            function requestNotificationPermission() {
+                if ('Notification' in window) {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            console.log('Permiso para notificaciones concedido.');
+                        } else {
+                            console.log('Permiso para notificaciones denegado.');
+                        }
+                    });
+                }
+            }
+
+            function checkUpcomingEvents() {
+                if (!('Notification' in window) || Notification.permission !== 'granted') {
+                    return; // No hacer nada si no hay permiso
+                }
+
+                const now = new Date();
+                const allEvents = calendar.getEvents();
+                
+                allEvents.forEach(event => {
+                    const eventStart = event.start;
+                    const eventTime = event.extendedProps.time;
+                    
+                    if (eventStart && eventTime && !notifiedEventIds.has(event.id)) {
+                        // Combinar la fecha del evento con la hora del evento
+                        const [hours, minutes] = eventTime.split(':');
+                        const eventDateTime = new Date(eventStart);
+                        eventDateTime.setHours(hours, minutes, 0, 0);
+
+                        // Comprobar si el evento ocurre en el minuto actual
+                        const diffMinutes = (eventDateTime.getTime() - now.getTime()) / 60000;
+
+                        if (diffMinutes >= 0 && diffMinutes < 1) {
+                            const body = `El evento "${event.title}" comienza ahora a las ${eventTime}.`;
+                            const notification = new Notification('Recordatorio de Evento', {
+                                body: body,
+                                icon: '/assets/imagenes/favicon.ico' // Opcional: una imagen para la notificación
+                            });
+                            
+                            // Marcar como notificado para no repetir
+                            notifiedEventIds.add(event.id);
+                        }
+                    }
+                });
+            }
+
+            // Pedir permiso al cargar la página
+            requestNotificationPermission();
+
+            // Revisar eventos cada minuto
+            setInterval(checkUpcomingEvents, 60000); 
+            // ===================================================
+            // FIN: LÓGICA DE NOTIFICACIONES
+            // ===================================================
+
+        });
+    </script>
+</body>
+</html>

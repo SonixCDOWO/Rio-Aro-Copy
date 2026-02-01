@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Núcleo Familiar</title>
+    <!-- Incluye los mismos CSS y JS que usas en otras páginas (Bootstrap, jQuery, Toastify, etc.) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"/>
+    <link rel="stylesheet" href="/assets/css/Navs&Headers.css">
+    <style>
+        body { background: linear-gradient(120deg, #3b82f6, #2563eb); }
+        .container { max-width: 1200px; }
+        .person-card { background: rgba(255,255,255,0.9); color: #333; }
+
+        .wapper-aside{
+        position: fixed;
+        width: 10px;
+        height: 85%;
+        display: grid;
+        align-items: center;
+        z-index: 100;
+    }
+
+    .wapper-aside:hover .sidebar{
+        transform: translateX(0);
+    }
+
+    .sidebar{
+        z-index: 101;
+        position: absolute;
+        background-color: white;
+        width: max-content;
+        border-radius: 10px;
+        padding:  2rem 1rem;
+        transform: translateX(-90%);
+        transition: transform .3s ease;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.30);
+    }
+
+    .sidebar:hover .sidebar_element{
+        grid-template-columns: 40px 1fr;
+    }
+
+    .sidebar_list{
+        list-style: none;
+        padding: 0;
+        margin-bottom: 0;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        justify-content: center;
+    }
+
+    .sidebar_list a{
+      text-decoration: none;
+    }
+
+    .sidebar_element{
+        padding: .8rem 1.3rem;
+        border-radius: 10px;
+        display: grid;
+        align-items: center;
+        grid-template-columns: 40px 0fr;
+        color: #526581;
+
+        transition:  grid-template-columns .5s;
+    }
+
+    .sidebar_element:hover{
+        background-color: #e3b707;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .sidebar_element a{
+      text-decoration: none;
+      color: #526581;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .sidebar_element a:hover{
+      color: #fff;
+    }
+
+    .sidebar_icon{
+        width: 100%;
+        overflow: hidden;
+        justify-self: center;
+    }
+
+    .sidebar_text{
+        padding-left: 1.3rem;
+        text-wrap: nowrap;
+        font-size: 1.1rem;
+    }
+
+    .sidebar_hide{
+        overflow: hidden;
+    }
+
+    @media screen and (min-width: 1340px) and (max-width: 1360px){
+      .sidebar{
+        padding:  1rem .5rem;
+      }
+
+      .sidebar_list{
+        gap: .2rem;
+
+      }
+
+      .sidebar_element{
+        padding: .8rem .8rem;
+    }
+  }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand nav-link" href="/">
+                <i class="bi bi-cpu-fill"></i> RIO ARO Portal
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#features">Funciones</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
+                    <li class="nav-item"><span class="nav-link disabled">Admin</span></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+     <div class="wapper-aside">
+        <aside class="sidebar">
+        <ul class="sidebar_list">
+          
+          <a href="/index">
+            <li class="sidebar_element">
+                <img src="../assets/icons/regresar.svg" alt="home" class="sidebar_icon" width="35px" height="35px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Inicio</p>
+                </div>
+            </li>
+          </a>
+
+          <a href="/base_de_datos">
+            <li class="sidebar_element">
+                <img src="../assets/icons/datos-black.png" alt="estadisticas" class="sidebar_icon" width="20px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Base de datos</p>
+                </div>
+            </li>
+          </a>
+
+        <a href="/comunidades">
+              <li class="sidebar_element">
+                <img src="../assets/icons/vista rapida-black.png" alt="informe" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Jerarquia</p>
+                </div>
+            </li>
+            </a>
+            
+            <a href="/historia">
+            <li class="sidebar_element">
+                <img src="../assets/icons/historial.svg" alt="informe" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Historial</p>
+                </div>
+            </li>
+          </a>
+            
+          <a href="/calendario">
+            <li class="sidebar_element">
+                <img src="../assets/icons/calendario.svg" alt="calendario" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Calendario</p>
+                </div>
+            </li>
+          </a>           
+
+          <a href="/galeria">
+            <li class="sidebar_element">
+                <img src="../assets/icons/galeria.svg" alt="galeria" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Galeria</p>
+                </div>
+            </li>
+          </a>
+        </ul>
+    </aside>
+  </div>
+
+    <main class="container mt-5 mb-5">
+        <div class="p-4 p-md-5 rounded-3 person-card">
+            <h1 id="household-title">Cargando datos del hogar...</h1>
+            <hr>
+            <div id="form-container">
+                <!-- Los campos del formulario se generarán aquí -->
+            </div>
+            <div class="mt-4">
+                <button class="btn btn-success" id="add-person-btn"><i class="bi bi-person-plus-fill me-2"></i>Agregar Persona</button>
+                <button class="btn btn-primary" id="save-changes-btn"><i class="bi bi-save-fill me-2"></i>Guardar Cambios</button>
+            </div>
+        </div>
+    </main>
+
+<script>
+$(document).ready(function() {
+    const params = new URLSearchParams(window.location.search);
+    const isEditMode = window.location.pathname.includes('editar-hogar');
+    
+    const formContainer = $('#form-container');
+    let allHeaders = [];
+
+    // Función para crear el formulario de una persona (sin cambios)
+    function createPersonForm(personData) {
+        const personId = personData['__row'] || `new_${Date.now()}`;
+        let formHtml = `<div class="person-form mb-4 p-3 border rounded" data-row="${personId}"><h5 class="d-flex justify-content-between">Miembro Familiar <button class="btn btn-sm btn-danger remove-person-btn"><i class="bi bi-trash-fill"></i></button></h5><div class="row g-3">`;
+
+        allHeaders.forEach(header => {
+            if (header.toUpperCase() === '__ROW') return;
+            const value = personData[header] || '';
+            let isDisabled = isEditMode && ['COMUNIDAD', 'TORRE', 'CASA O APTO'].includes(header.toUpperCase()) ? 'disabled' : '';
+            
+            formHtml += `
+                <div class="col-md-4">
+                    <label class="form-label">${header}</label>
+                    <input type="text" class="form-control" data-key="${header}" value="${value}" ${isDisabled}>
+                </div>
+            `;
+        });
+        formHtml += '</div></div>';
+        formContainer.append(formHtml);
+    }
+
+    // --- LÓGICA DE BORRADO MEJORADA ---
+    formContainer.on('click', '.remove-person-btn', function() {
+        const personForm = $(this).closest('.person-form');
+        const rowId = personForm.data('row').toString();
+
+        // 1. Pedir confirmación al usuario
+        if (!confirm('¿Estás seguro de que deseas eliminar a esta persona? Esta acción no se puede deshacer.')) {
+            return; // Si el usuario cancela, no hacer nada
+        }
+
+        // 2. Distinguir entre una persona nueva (no guardada) y una existente
+        if (rowId.startsWith('new_')) {
+            // Caso A: Es una persona nueva, solo se borra del formulario
+            personForm.remove();
+            Toastify({ text: "Persona no guardada eliminada del formulario.", backgroundColor: "orange" }).showToast();
+        } else {
+            // Caso B: Es una persona existente, hay que llamar a la API
+            console.log(`--- LOG: Intentando eliminar la fila ${rowId} ---`);
+            
+            fetch('/api/delete-row', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ __row: parseInt(rowId) }) // Enviar el número de fila
+            })
+            .then(res => {
+                if (res.ok) {
+                    // 3. Si el backend confirma el borrado, eliminar el formulario de la vista
+                    personForm.remove();
+                    Toastify({ text: "Persona eliminada exitosamente.", backgroundColor: "green" }).showToast();
+                } else {
+                    // 4. Si hay un error, notificar al usuario y NO eliminar el formulario
+                    Toastify({ text: "Error: No se pudo eliminar a la persona.", backgroundColor: "red" }).showToast();
+                }
+            })
+            .catch(error => {
+                console.error("Error en la llamada fetch:", error);
+                Toastify({ text: "Error de red al intentar eliminar.", backgroundColor: "red" }).showToast();
+            });
+        }
+    });
+    
+    // El resto del script sigue igual
+    $.getJSON("/api/excel/columns", function(headers) {
+        allHeaders = headers;
+        if (isEditMode) {
+            const comunidad = params.get('comunidad'), torre = params.get('torre'), casa = params.get('casa');
+            $('#household-title').text(`Editando Hogar: ${comunidad} - Torre ${torre} - Casa ${casa}`);
+            $.getJSON(`/api/get-household-details?comunidad=${comunidad}&torre=${torre}&casa=${casa}`, function(household) {
+                formContainer.empty();
+                household.forEach(person => createPersonForm(person));
+            });
+        } else {
+            $('#household-title').text(`Agregar Nuevo Núcleo Familiar`);
+            createPersonForm({});
+        }
+    });
+
+    $('#save-changes-btn').on('click', function() {
+        let payload = [];
+        $('.person-form').each(function() {
+            const personForm = $(this);
+            let personData = { '__row': personForm.data('row').toString() };
+            personForm.find('input').each(function() {
+                const input = $(this);
+                personData[input.data('key')] = input.val();
+            });
+            payload.push(personData);
+        });
+        console.log("--- LOG: Datos que se enviarán al backend: ---", JSON.stringify(payload, null, 2));
+        if (payload.length === 0) {
+            Toastify({ text: "No hay datos para guardar.", backgroundColor: "orange" }).showToast();
+            return;
+        }
+        fetch("/api/update-excel", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ datos: payload })
+        }).then(res => {
+            const successMsg = isEditMode ? "¡Hogar actualizado!" : "¡Nuevo hogar agregado!";
+            if (res.ok) {
+                Toastify({ text: successMsg, backgroundColor: "green" }).showToast();
+                setTimeout(() => window.location.href = '/comunidades', 1500);
+            } else {
+                Toastify({ text: "Error al guardar los cambios.", backgroundColor: "red" }).showToast();
+            }
+        });
+    });
+
+    $('#add-person-btn').on('click', function() {
+        let newPersonData = {};
+        const firstForm = $('.person-form:first');
+        if (firstForm.length > 0) {
+            newPersonData['COMUNIDAD'] = firstForm.find('input[data-key="COMUNIDAD"]').val();
+            newPersonData['TORRE'] = firstForm.find('input[data-key="TORRE"]').val();
+            newPersonData['CASA O APTO'] = firstForm.find('input[data-key="CASA O APTO"]').val();
+        }
+        createPersonForm(newPersonData);
+    });
+});
+</script>
+</body>
+</html>

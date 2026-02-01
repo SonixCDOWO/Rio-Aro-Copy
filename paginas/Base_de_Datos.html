@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Base de Datos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/Navs&Headers.css">
+  <link rel="stylesheet" href="/assets/css/Sidebar.css">
+
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --secondary-color: #2563eb;
+      --btn-main-color: #e3b707;
+      --btn-hover-color: #eab308;
+      --text-light-color: #fff;
+      --text-dark-color: #333;
+      --background-gradient: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+      --font-stack: 'Segoe UI', Arial, sans-serif;
+    }
+    body {
+      font-family: var(--font-stack);
+      background: var(--background-gradient);
+      min-height: 100vh;
+      margin: 0;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Estilos de la tabla */
+    .main-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+    .table-header { text-align: center; margin-bottom: 1rem; font-size: 1.5rem; color: #343a40; }
+    .table-container {
+      padding: 1.5rem;
+      background: #fff;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #editableTable input {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+    #editableTable input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      background-color: #e6f0ff;
+    }
+    #editableTable th { background: #007bff; color: white; text-align: center; min-width: 150px;}
+    #editableTable tbody tr:nth-child(even) { background-color: #f2f2f2; }
+    #editableTable tbody tr:hover { background-color: #e6f0ff; }
+    #editableTable td { text-align: center; }
+
+    table.dataTable thead>tr>th.sorting{
+        text-align: center;
+    }
+  
+
+    /* Estilos de botones y controles */
+    #guardar, #descartar {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      color: white;
+      border: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+    #guardar { background: #28a745; }
+    #guardar:hover { background: #218838; }
+    #guardar:disabled { background: #6c757d; cursor: not-allowed; }
+    #descartar { background: #ff9900f5; }
+    #descartar:hover { background: #ff9900b9; }
+    #editControls { display: none; gap: 1rem; margin-bottom: 1rem;}
+    .exportar-btns { margin-bottom: 1rem; display: flex; gap: 1rem; }
+    .buttons-container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem; }
+  
+    .wapper-aside{
+        position: fixed;
+        width: 10px;
+        height: 100%;
+        display: grid;
+        align-items: center;
+        z-index: 100;
+    }
+
+    .wapper-aside:hover .sidebar{
+        transform: translateX(0);
+    }
+
+    .sidebar{
+        z-index: 101;
+        position: absolute;
+        background-color: white;
+        width: max-content;
+        border-radius: 10px;
+        padding:  2rem 1rem;
+        transform: translateX(-90%);
+        transition: transform .3s ease;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.30);
+    }
+
+    .sidebar:hover .sidebar_element{
+        grid-template-columns: 40px 1fr;
+    }
+
+    .sidebar_list{
+        list-style: none;
+        padding: 0;
+        margin-bottom: 0;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        justify-content: center;
+    }
+
+    .sidebar_list a{
+      text-decoration: none;
+    }
+
+    .sidebar_element{
+        padding: .8rem 1.3rem;
+        border-radius: 10px;
+        display: grid;
+        align-items: center;
+        grid-template-columns: 40px 0fr;
+        color: #526581;
+
+        transition:  grid-template-columns .5s;
+    }
+
+    .sidebar_element:hover{
+        background-color: #e3b707;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .sidebar_element a{
+      text-decoration: none;
+      color: #526581;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .sidebar_element a:hover{
+      color: #fff;
+    }
+
+    .sidebar_icon{
+        width: 100%;
+        overflow: hidden;
+        justify-self: center;
+    }
+
+    .sidebar_text{
+        padding-left: 1.3rem;
+        text-wrap: nowrap;
+        font-size: 1.1rem;
+    }
+
+    .sidebar_hide{
+        overflow: hidden;
+    }
+
+    @media screen and (min-width: 1340px) and (max-width: 1360px){
+      .sidebar{
+        padding:  1rem .5rem;
+      }
+
+      .sidebar_list{
+        gap: .2rem;
+
+      }
+
+      .sidebar_element{
+        padding: .8rem .8rem;
+    }
+  }
+
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand nav-link" href="/">
+        <i class="bi bi-cpu-fill"></i> RIO ARO Portal
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/agregar-hogar">Agregar familia</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wapper-aside">
+        <aside class="sidebar">
+        <ul class="sidebar_list">
+          
+          <a href="/index">
+            <li class="sidebar_element">
+                <img src="../assets/icons/regresar.svg" alt="home" class="sidebar_icon" width="35px" height="35px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Inicio</p>
+                </div>
+            </li>
+          </a>
+
+          <a href="/base_de_datos">
+            <li class="sidebar_element">
+                <img src="../assets/icons/datos-black.png" alt="estadisticas" class="sidebar_icon" width="20px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Base de datos</p>
+                </div>
+            </li>
+          </a>
+
+          <a href="/comunidades">
+              <li class="sidebar_element">
+                <img src="../assets/icons/vista rapida-black.png" alt="informe" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Jerarquia</p>
+                </div>
+            </li>
+          </a>
+            
+          <a href="/historia">
+            <li class="sidebar_element">
+                <img src="../assets/icons/historial.svg" alt="informe" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Historial</p>
+                </div>
+            </li>
+          </a>
+            
+          <a href="/calendario">
+            <li class="sidebar_element">
+                <img src="../assets/icons/calendario.svg" alt="calendario" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Calendario</p>
+                </div>
+            </li>
+          </a>           
+
+          <a href="/galeria">
+            <li class="sidebar_element">
+                <img src="../assets/icons/galeria.svg" alt="galeria" class="sidebar_icon" width="30px" height="30px">
+                
+                <div class="sidebar_hide">
+                    <p class="sidebar_text">Galeria</p>
+                </div>
+            </li>
+          </a>
+        </ul>
+    </aside>
+  </div>
+
+  <main>
+    <div class="main-container">
+      <div class="table-container">
+        <h2 class="table-header">Habitantes de Rio Aro</h2>
+
+        <div class="buttons-container">
+          <div>
+            <button id="toggleMode" class="btn btn-info mt-3">Alternar Modo (Edición)</button>
+            <span id="modeStatus" class="ms-3 badge bg-secondary">Modo: Edición</span>
+          </div>
+
+          <div class="exportar-btns">
+            <!-- AGREGADO: Botón Listado Votantes -->
+            <a href="/listado_votantes" target="_blank" class="btn btn-info mt-3 text-white">
+              <i class="bi bi-person-vcard"></i> Listado Votantes
+            </a>
+
+            <button id="filterButton" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#filterModal">
+              <i class="bi bi-filter"></i> Filtrar
+            </button>
+
+            <button id="exportarPDF" class="btn btn-danger mt-3">
+              <i class="bi bi-file-earmark-pdf"></i> Exportar a PDF
+            </button>
+
+            <button id="exportar" class="btn btn-warning mt-3">
+              <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
+            </button>
+          </div>
+        </div>
+
+        <div id="editControls">
+          <button id="guardar">Guardar cambios</button>
+          <button id="descartar">Descartar Cambios</button>
+        </div>
+
+        <table id="editableTable"></table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="filterModalLabel">Filtrar Información</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="filterInputsContainer">
+            <!-- Aquí se agregarán dinámicamente los campos de filtro -->
+          </div>
+          <button type="button" class="btn btn-sm btn-secondary mt-3" id="addFilterInput">
+            <i class="bi bi-plus-circle"></i> Agregar otro filtro
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="applyFilterButton">Aplicar Filtro</button>
+          <button type="button" class="btn btn-warning" id="clearAllFiltersButton">Limpiar Todos los Filtros</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let pendingChanges = {};
+    let dataTableInstance;
+    let readOnlyMode = true;
+    let excelHeaders = []; // Para almacenar los encabezados del Excel
+    let activeFilters = []; // Almacenará { column: "Nombre", value: "Juan" }
+
+    // Función para renderizar un grupo de campos de filtro
+    function renderFilterInput(filter = { column: '', value: '' }, index = 0) {
+      const filterColumnOptions = excelHeaders.map(header => 
+        `<option value="${header}" ${filter.column === header ? 'selected' : ''}>${header}</option>`
+      ).join('');
+
+      return `
+        <div class="mb-3 p-2 border rounded filter-group" data-filter-index="${index}">
+          <div class="d-flex justify-content-end">
+            <button type="button" class="btn-close remove-filter-input" aria-label="Remove" data-filter-index="${index}"></button>
+          </div>
+          <div class="mb-2">
+            <label for="filterColumn-${index}" class="form-label">Columna a filtrar:</label>
+            <select class="form-select filter-column-select" id="filterColumn-${index}" data-filter-index="${index}">
+              ${filterColumnOptions}
+            </select>
+          </div>
+          <div>
+            <label for="filterValue-${index}" class="form-label">Valor del filtro:</label>
+            <input type="text" class="form-control filter-value-input" id="filterValue-${index}" value="${filter.value}" data-filter-index="${index}">
+          </div>
+        </div>
+      `;
+    }
+
+    // Función para actualizar el contenedor de filtros
+    function updateFilterInputsContainer() {
+      const container = document.getElementById("filterInputsContainer");
+      container.innerHTML = ''; // Limpiar el contenedor
+      if (activeFilters.length === 0 && excelHeaders.length > 0) {
+        // Si no hay filtros activos, agregar uno por defecto con la primera columna
+        activeFilters.push({ column: excelHeaders[0], value: '' });
+      }
+      activeFilters.forEach((filter, index) => {
+        container.insertAdjacentHTML('beforeend', renderFilterInput(filter, index));
+      });
+      attachFilterInputListeners();
+    }
+
+    // Adjuntar listeners a los nuevos inputs de filtro
+    function attachFilterInputListeners() {
+      document.querySelectorAll('.filter-column-select').forEach(select => {
+        select.onchange = (e) => {
+          const index = parseInt(e.target.dataset.filterIndex);
+          activeFilters[index].column = e.target.value;
+        };
+      });
+      document.querySelectorAll('.filter-value-input').forEach(input => {
+        input.oninput = (e) => {
+          const index = parseInt(e.target.dataset.filterIndex);
+          activeFilters[index].value = e.target.value;
+        };
+      });
+      document.querySelectorAll('.remove-filter-input').forEach(button => {
+        button.onclick = (e) => {
+          const index = parseInt(e.target.dataset.filterIndex);
+          activeFilters.splice(index, 1); // Eliminar el filtro del array
+          updateFilterInputsContainer(); // Volver a renderizar
+        };
+      });
+    }
+
+    fetch("/api/excel/columns")
+      .then(res => res.json())
+      .then(headers => {
+        excelHeaders = headers; // Guardar los encabezados (ya vienen limpios del backend)
+        const thead = document.createElement("thead");
+        const trh = document.createElement("tr");
+        headers.forEach(h => {
+          const th = document.createElement("th");
+          th.textContent = h;
+          trh.appendChild(th);
+        });
+        thead.appendChild(trh);
+        document.getElementById("editableTable").appendChild(thead);
+
+        // Inicializar el contenedor de filtros
+        updateFilterInputsContainer();
+
+
+        $(document).ready(() => {
+          dataTableInstance = $('#editableTable').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: { 
+              url: '/api/excel', 
+              type: 'GET',
+              data: function(d) {
+                // Enviar todos los filtros activos al backend
+                d.filters = JSON.stringify(activeFilters.filter(f => f.column && f.value)); // Filtrar filtros vacíos
+              }
+            },
+            columns: [
+              ...headers.map(h => ({
+                data: h, // 'h' ya está limpio
+                render: (_, type, row) => {
+                  if (type === 'display') {
+                    if (readOnlyMode) return row[h] || '';
+                    // Usar 'h' (limpio) para el data-key
+                    return `<input data-key="${h}" data-row="${row.__row}" value="${row[h]||''}" />`;
+                  }
+                  return row[h];
+                }
+              })),
+              { data: "__row", visible: false }
+            ],
+            pageLength: 10,
+            scrollX: true
+          });
+
+          const setupEditEvents = () => {
+            if (!readOnlyMode) {
+              $('#editableTable tbody').on('input', 'input', function() {
+                const input = $(this);
+                const rowNum = input.data('row');
+                const key = input.data('key'); // 'key' ya es el limpio
+                const value = input.val();
+
+                if (!pendingChanges[rowNum]) {
+                  pendingChanges[rowNum] = { '__row': rowNum.toString() };
+                  input.closest('tr').css('background-color', '#fff3cd');
+                }
+
+                pendingChanges[rowNum][key] = value;
+              });
+            } else {
+              $('#editableTable tbody').off('input', 'input');
+              $('#editableTable tbody tr').css('background-color', '');
+            }
+          };
+
+          setupEditEvents();
+
+          $('#exportar').on('click', function() {
+            const searchValue = dataTableInstance.search();
+            let exportUrl = `/api/excel/export?search[value]=${encodeURIComponent(searchValue)}`;
+            // Enviar todos los filtros activos al backend para exportación
+            exportUrl += `&filters=${encodeURIComponent(JSON.stringify(activeFilters.filter(f => f.column && f.value)))}`;
+            
+            window.location.href = exportUrl;
+          });
+
+          $('#exportarPDF').on('click', function() {
+            const searchValue = dataTableInstance.search();
+            let exportUrl = `/api/pdf/export?search[value]=${encodeURIComponent(searchValue)}`;
+            // Enviar todos los filtros activos al backend para exportación PDF
+            exportUrl += `&filters=${encodeURIComponent(JSON.stringify(activeFilters.filter(f => f.column && f.value)))}`;
+            
+            window.location.href = exportUrl;
+          });
+
+          document.getElementById("toggleMode").addEventListener("click", () => {
+            readOnlyMode = !readOnlyMode;
+            const toggleButton = document.getElementById("toggleMode");
+            const modeStatus = document.getElementById("modeStatus");
+            const editControls = document.getElementById("editControls");
+
+            if (readOnlyMode) {
+              toggleButton.textContent = "Alternar Modo (Lectura)";
+              modeStatus.textContent = "Modo: Lectura";
+              modeStatus.classList.remove("bg-success");
+              modeStatus.classList.add("bg-secondary");
+              editControls.style.display = 'none';
+            } else {
+              toggleButton.textContent = "Alternar Modo (Edición)";
+              modeStatus.textContent = "Modo: Edición";
+              modeStatus.classList.remove("bg-secondary");
+              modeStatus.classList.add("bg-success");
+              editControls.style.display = 'block';
+            }
+
+            dataTableInstance.columns.adjust().draw();
+            setupEditEvents();
+          });
+
+          // Manejo del botón "Aplicar Filtro"
+          document.getElementById("applyFilterButton").addEventListener("click", () => {
+            dataTableInstance.ajax.reload();
+            $('#filterModal').modal('hide');
+          });
+
+          // Manejo del botón "Agregar otro filtro"
+          document.getElementById("addFilterInput").addEventListener("click", () => {
+            if (excelHeaders.length > 0) {
+              activeFilters.push({ column: excelHeaders[0], value: '' });
+              updateFilterInputsContainer();
+            } else {
+              Toastify({ 
+                text: "No se encontraron columnas para filtrar.", duration: 3000, gravity: "bottom", position: "right", backgroundColor: "red" 
+              }).showToast();
+            }
+          });
+
+          // Manejo del botón "Limpiar Todos los Filtros"
+          document.getElementById("clearAllFiltersButton").addEventListener("click", () => {
+            activeFilters = []; // Limpiar todos los filtros
+            updateFilterInputsContainer(); // Volver a renderizar para mostrar un filtro vacío
+            dataTableInstance.ajax.reload();
+            $('#filterModal').modal('hide');
+          });
+
+
+          const editControls = document.getElementById("editControls");
+          const toggleButton = document.getElementById("toggleMode");
+          const modeStatus = document.getElementById("modeStatus");
+
+          if (readOnlyMode) {
+            editControls.style.display = 'none';
+            toggleButton.textContent = "Alternar Modo (Lectura)";
+            modeStatus.textContent = "Modo: Lectura";
+            modeStatus.classList.add("bg-secondary");
+            modeStatus.classList.remove("bg-success");
+          } else {
+            editControls.style.display = 'block';
+            toggleButton.textContent = "Alternar Modo (Edición)";
+            modeStatus.textContent = "Modo: Edición";
+            modeStatus.classList.add("bg-success");
+            modeStatus.classList.remove("bg-secondary");
+          }
+        });
+      });
+
+    document.getElementById("guardar").addEventListener("click", () => {
+      const datos = Object.values(pendingChanges);
+
+      if (datos.length === 0) {
+        alert("No hay cambios para guardar.");
+        return;
+      }
+
+      fetch("/api/update-excel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ datos })
+      }).then(res => {
+        if (res.ok) {
+          Toastify({ 
+            text: "¡Cambios guardados exitosamente!", duration: 3000, gravity: "bottom", position: "right", backgroundColor: "green" 
+          }).showToast();
+          pendingChanges = {};
+          dataTableInstance.ajax.reload(null, false);
+
+        } else {
+          Toastify({ 
+            text: "Error guardando los cambios.", duration: 3000, gravity: "bottom", position: "right", backgroundColor: "red" 
+          }).showToast();
+        }
+      });
+    });
+
+    document.getElementById("descartar").addEventListener("click", () => {
+      if (Object.keys(pendingChanges).length > 0 && confirm("¿Estás seguro de que quieres descartar los cambios?")) {
+        pendingChanges = {};
+        dataTableInstance.ajax.reload(null, false);
+
+        Toastify({ 
+          text: "¡Cambios descartados!", duration: 2000, gravity: "bottom", position: "right", backgroundColor: "orange" 
+        }).showToast();
+
+      } else if (Object.keys(pendingChanges).length === 0) {
+        alert("No hay cambios pendientes para descartar.");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Importar Datos desde Excel</title>
+    <!-- Incluye los mismos CSS y JS que usas en otras páginas -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"/>
+    <link rel="stylesheet" href="/assets/css/Navs&Headers.css">
+    
+    <!-- Librería para leer archivos Excel en JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <style>
+        body { background: linear-gradient(120deg, #3b82f6, #2563eb); }
+        .container { max-width: 1200px; }
+        .content-card { background: rgba(255,255,255,0.95); color: #333; }
+        .accordion-button:not(.collapsed) { background-color: #e7f1ff; color: #0c63e4; }
+        .person-item { cursor: pointer; transition: background-color 0.2s; }
+        .person-item:hover { background-color: #f0f0f0; }
+        #import-btn { display: none; } /* Oculto hasta que se carguen datos */
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand nav-link" href="/"><i class="bi bi-cpu-fill"></i> RIO ARO Portal</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/comunidades">Vista Jerárquica</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/importar">Importar</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-5 mb-5">
+        <div class="p-4 p-md-5 rounded-3 content-card">
+            <h1>Importar Nuevos Habitantes</h1>
+            <p class="lead">Selecciona un archivo Excel. El sistema verificará si existen duplicados por Cedula de Identidad antes de la importación.</p>
+            <hr>
+            <div class="mb-3">
+                <label for="excel-file-input" class="form-label">Seleccionar archivo Excel</label>
+                <input class="form-control" type="file" id="excel-file-input" accept=".xlsx, .xls">
+            </div>
+
+            <div id="preview-container" class="mt-4">
+                <div class="alert alert-info">Esperando archivo para la vista previa...</div>
+            </div>
+            
+            <div class="mt-4">
+                <button class="btn btn-primary btn-lg" id="import-btn">
+                    <i class="bi bi-cloud-upload-fill me-2"></i>Importar Todos los Datos
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para Editar Persona (sin cambios) -->
+    <div class="modal fade" id="editPersonModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Editar Información</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="modal-form-fields" class="row g-3"></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary" id="save-modal-changes-btn">Guardar Cambios</button></div></div></div></div>
+
+    <!-- NUEVO: Modal para Verificar Duplicados -->
+    <div class="modal fade" id="verificationModal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Verificación de Duplicado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4><i class="bi bi-database-check text-success"></i> Datos en la Base de Datos Principal</h4>
+                            <div id="existing-person-data" class="p-3 bg-light rounded"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h4><i class="bi bi-file-earmark-arrow-up text-primary"></i> Datos del Archivo a Importar</h4>
+                            <div id="new-person-data" class="p-3 bg-light rounded"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar y Mantener</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>$(document).ready(function() {
+    const fileInput = $('#excel-file-input');
+    const previewContainer = $('#preview-container');
+    const importBtn = $('#import-btn');
+    
+    const editModal = new bootstrap.Modal(document.getElementById('editPersonModal'));
+    const modalFormFields = $('#modal-form-fields');
+    
+    const verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'));
+    const existingPersonDataContainer = $('#existing-person-data');
+    const newPersonDataContainer = $('#new-person-data');
+
+    let originalData = [];
+    let duplicateCedulas = new Set();
+    let activePersonElement = null;
+ let excelHeaders = []; // <--- AÑADE ESTA LÍNEA
+
+fileInput.on('change', async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    previewContainer.html('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>');
+    
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data);
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+
+  
+    if (jsonData.length > 0) {
+        excelHeaders = Object.keys(jsonData[0]).filter(k => k !== '__tempId');
+    }
+ 
+    originalData = jsonData.map((person, index) => ({ ...person, __tempId: `person_${index}` }));
+        
+        // --- PROCESO DE VERIFICACIÓN ---
+        const cedulasToCheck = originalData.map(p => p['Cedula de identidad']).filter(Boolean);
+        const response = await fetch('/api/check-cedulas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cedulas: cedulasToCheck })
+        });
+        const duplicates = await response.json();
+        duplicateCedulas = new Set(duplicates);
+        
+        console.log("--- LOG: Cédulas duplicadas encontradas ---", duplicateCedulas);
+        
+        renderPreview(originalData);
+        importBtn.show();
+    });
+
+    function renderPreview(people) {
+        previewContainer.empty();
+        if (people.length === 0) {
+            previewContainer.html('<p class="text-muted">El archivo está vacío.</p>');
+            return;
+        }
+
+        const groupedData = people.reduce((acc, person) => {
+            const com = person['COMUNIDAD'] || 'N/A';
+            const torre = person['TORRE'] || 'N/A';
+            const casa = person['CASA O APTO'] || 'N/A';
+            if (!acc[com]) acc[com] = {};
+            if (!acc[com][torre]) acc[com][torre] = {};
+            if (!acc[com][torre][casa]) acc[com][torre][casa] = [];
+            acc[com][torre][casa].push(person);
+            return acc;
+        }, {});
+        
+        let accordionHtml = '<div class="accordion">';
+        Object.keys(groupedData).sort().forEach((com, i) => {
+            accordionHtml += `<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCom${i}">Comunidad: ${com}</button></h2><div id="collapseCom${i}" class="accordion-collapse collapse"><div class="accordion-body">`;
+            Object.keys(groupedData[com]).sort((a, b) => a - b).forEach(torre => {
+                accordionHtml += `<h5>Torre: ${torre}</h5>`;
+                Object.keys(groupedData[com][torre]).sort().forEach(casa => {
+                    accordionHtml += `<p class="ms-3"><strong>Casa/Apto: ${casa}</strong></p><ul class="list-group list-group-flush ms-4 mb-3">`;
+                    groupedData[com][torre][casa].forEach(person => {
+                        const cedula = person['Cedula de identidad'];
+                        const isDuplicate = duplicateCedulas.has(cedula);
+                        const itemClass = isDuplicate ? 'list-group-item-warning' : '';
+                        const duplicateIcon = isDuplicate ? '<i class="bi bi-exclamation-triangle-fill text-danger ms-2" title="Cedula ya existe en la base de datos"></i>' : '';
+                        
+                        accordionHtml += `
+                            <li class="list-group-item d-flex justify-content-between align-items-center person-item ${itemClass}" data-tempid="${person.__tempId}">
+                                <div>${person['Nombre completo'] || 'Nombre no encontrado'} ${duplicateIcon}</div>
+                                <button class="btn btn-sm btn-outline-danger delete-person-btn"><i class="bi bi-trash"></i></button>
+                            </li>`;
+                    });
+                    accordionHtml += `</ul>`;
+                });
+            });
+            accordionHtml += `</div></div></div>`;
+        });
+        accordionHtml += `</div>`;
+        previewContainer.html(accordionHtml);
+    }
+
+    // Evento unificado para clic en un item de persona
+    previewContainer.on('click', '.person-item', async function(e) {
+        // Detener si se hizo clic en el botón de borrar
+        if ($(e.target).closest('.delete-person-btn').length) return;
+        
+        activePersonElement = $(this);
+        const tempId = activePersonElement.data('tempid');
+        const personDataFromImport = originalData.find(p => p.__tempId === tempId);
+        const cedula = personDataFromImport['Cedula de identidad'];
+
+        if (duplicateCedulas.has(cedula)) {
+            // --- MOSTRAR MODAL DE COMPARACIÓN ---
+            const response = await fetch(`/api/get-person-by-cedula?cedula=${cedula}`);
+            const personDataFromDB = await response.json();
+
+            existingPersonDataContainer.html(formatPersonDataForDisplay(personDataFromDB));
+            newPersonDataContainer.html(formatPersonDataForDisplay(personDataFromImport));
+            verificationModal.show();
+        } else {
+            // --- MOSTRAR MODAL DE EDICIÓN NORMAL ---
+            modalFormFields.empty();
+            let formHtml = '';
+            for (const key in personDataFromImport) {
+                if (key === '__tempId') continue;
+                formHtml += `<div class="col-md-4"><label class="form-label">${key}</label><input type="text" class="form-control" data-key="${key}" value="${personDataFromImport[key]}"></div>`;
+            }
+            modalFormFields.html(formHtml);
+            editModal.show();
+        }
+    });
+
+    // Evento para borrar una persona de la vista previa
+    previewContainer.on('click', '.delete-person-btn', function() {
+        if (!confirm('¿Quitar a esta persona de la lista de importación?')) return;
+        
+        const personItem = $(this).closest('.person-item');
+        const tempId = personItem.data('tempid');
+        
+        originalData = originalData.filter(p => p.__tempId !== tempId);
+        renderPreview(originalData); // Re-renderizar la lista
+        Toastify({ text: "Persona quitada de la importación.", backgroundColor: "orange" }).showToast();
+    });
+
+    // Evento para guardar cambios del modal de edición (sin cambios)
+    $('#save-modal-changes-btn').on('click', function() {
+        if (!activePersonElement) return;
+        const tempId = activePersonElement.data('tempid');
+        const personIndex = originalData.findIndex(p => p.__tempId === tempId);
+        if (personIndex === -1) return;
+        modalFormFields.find('input').each(function() {
+            const input = $(this);
+            originalData[personIndex][input.data('key')] = input.val();
+        });
+        const displayName = originalData[personIndex]['Nombre completo'];
+        activePersonElement.find('div').html(`${displayName} ${activePersonElement.find('div').html().includes('exclamation') ? '<i class="bi bi-exclamation-triangle-fill text-danger ms-2"></i>' : ''}`);
+        editModal.hide();
+        Toastify({ text: "Cambios guardados en la vista previa.", backgroundColor: "blue" }).showToast();
+    });
+    
+    // Evento para la importación final (sin cambios)
+    importBtn.on('click', function() {
+        const finalPayload = originalData.map(({ __tempId, ...rest }) => rest);
+        fetch('/api/bulk-import', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ datos: finalPayload })
+        }).then(res => {
+            if (res.ok) {
+                Toastify({ text: "¡Datos importados exitosamente!", duration: 5000, backgroundColor: "green" }).showToast();
+                previewContainer.html('<div class="alert alert-info">Esperando archivo para la vista previa...</div>');
+                importBtn.hide();
+                fileInput.val('');
+                originalData = [];
+            } else {
+                Toastify({ text: "Error en la importación.", backgroundColor: "red" }).showToast();
+            }
+        });
+    });
+
+    // Función de ayuda para mostrar datos en el modal de comparación
+  function formatPersonDataForDisplay(personData) {
+    let html = '<dl class="row">';
+    
+    // Si tenemos encabezados del excel, los usamos para el orden
+    if (excelHeaders && excelHeaders.length > 0) {
+        excelHeaders.forEach(key => {
+            if (key === '__tempId') return;
+            // Obtenemos el valor, si no existe ponemos vacío
+            const value = personData[key] !== undefined ? personData[key] : '<span class="text-muted">N/A</span>';
+            html += `
+                <dt class="col-sm-5 text-truncate" title="${key}">${key}</dt>
+                <dd class="col-sm-7 border-bottom pb-1">${value}</dd>`;
+        });
+    } else {
+        // Fallback: si por alguna razón no hay headers, iteramos normal
+        for (const key in personData) {
+            if (key === '__tempId') continue;
+            html += `<dt class="col-sm-5">${key}</dt><dd class="col-sm-7">${personData[key]}</dd>`;
+        }
+    }
+    
+    html += '</dl>';
+    return html;
+}
+});</script>
+</body>
+</html>

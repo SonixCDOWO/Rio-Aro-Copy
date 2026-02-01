@@ -1,0 +1,20 @@
+PowerShell
+
+Windows 7 / 10 / 11 64bits
+$env:GOOS = "windows"
+$env:GOARCH = "amd64"
+go build -o Windows64.exe
+
+Windows 7 / 10 / 11 32bits
+$env:GOOS = "windows"
+$env:GOARCH = "386"
+go build -o Windows32.exe
+
+MacOs Intel
+$env:GOOS = "darwin"
+$env:GOARCH = "amd64"
+go build -o MacOsIntel
+
+
+
+
