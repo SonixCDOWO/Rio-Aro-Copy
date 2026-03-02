@@ -48,7 +48,6 @@
 
     body{
         background-image: linear-gradient(120deg, #3b82f6, #1145b4);
-
     }
 
     body:has(.content-btn a:nth-child(1):hover)::after {
@@ -56,7 +55,7 @@
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
         width: 100%;
-        height: 110%;
+        height: 100%;
         background: linear-gradient(120deg, #1ab49c, #0da08a);
         z-index: -1;
         animation: aparecer 0.5s forwards;
@@ -67,7 +66,7 @@
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
         width: 100%;
-        height: 110%;
+        height: 100%;
         background: linear-gradient(120deg, #5d2c6c, #441752); 
         z-index: -1;
         animation: aparecer 0.5s forwards;
@@ -78,7 +77,7 @@
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
         width: 100%;
-        height: 110%;
+        height: 100%;
         background: linear-gradient(120deg, darkorange, #dd7a00); 
         z-index: -1;
         animation: aparecer 0.5s forwards;
@@ -89,7 +88,7 @@
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
         width: 100%;
-        height: 110%;
+        height: 100%;
         background: linear-gradient(120deg, rgb(42, 170, 42), green); 
         z-index: -1;
         animation: aparecer 0.5s forwards;
@@ -100,16 +99,16 @@
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
         width: 100%;
-        height: 110%;
+        height: 100%;
         background-image: linear-gradient(120deg, rgb(248, 56, 56), rgb(218, 0, 0)); 
         z-index: -1;
         animation: aparecer 0.5s forwards;
     }
 
     header{
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(16px);
-        padding: 12px 10rem;
+        padding: calc(2rem * 0.5) 0px;
         position: sticky;
         top: 0;
         right: 0;
@@ -122,14 +121,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-    }
-
-    .content-header::after{
-        display: none;
-    }
-
-    .content-header::before{
-        display: none;
+        white-space: nowrap;
     }
 
     .content-header a{
@@ -149,119 +141,20 @@
     .content-header nav{
         text-decoration: none;
         display: flex;
-        justify-content: center;
-        width: fit-content;
+        justify-content: flex-end;
+        width: 40%;
         padding: 8px 15px;
         border-radius: 8px;
     }
 
-    .content-header li {
-        font-size: 1.25rem;
-    }
-
-    .content-login{
-        font-size:  1.25rem;
-        color: rgba(0, 0, 0, 1);
-        text-decoration: none;
-        white-space: nowrap;
-        transition: all ease .3s;
-    }
-
-    .wapper-login{
-        display: flex;
-        align-items: center;
-    }
-
-    .content-sincronizador{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
-
-    .btn-pull{
-        width: fit-content;   
-        padding: .5em;
-        border-radius: 50%;
-        border: solid 2px #fff;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        cursor: pointer;
-        margin-right: 10px;
-        background-color: transparent;
-        transition: all ease .3s;
-    }
-    .btn-pull:hover{
-        scale: 1.05;
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-push{
-        width: fit-content;   
-        padding: .5em;
-        border-radius: 50%;
-        border: solid 2px #fff;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        cursor: pointer;
-        margin-right: 14px;
-        background-color: transparent;
-        transition: all ease .3s;
-    }
-    .btn-push:hover{
-        scale: 1.05;
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .user-component::after,.user-component::before{
-        display: none;
-    }
-
-    .user-icon{
-        border-radius: 50%;
-        border: solid 2px #fff;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        cursor: pointer;
-        transition: all ease .3s;
-    }
-
-    .user-icon:hover{
-        scale: 1.05;
-    }
-
-    .user-status{
-        position: absolute;
-        display: block;
-        width: fit-content;
+    .content-header ul{
         list-style: none;
-        background-color: #fff;
-        color: #333;
-        border-radius: 1rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        font-size: 1.25rem;
-        padding: .5rem;
-        opacity: 0;
-        transition: all ease .3s;
-        transform: translateY(15px);
+        display: flex;
     }
 
-    .user-status li{
-        padding-bottom: .5rem;
-    }
-
-    .user-status li a{
-        color: black;
-        font-weight: 600;
-        padding: 0px;
-        border-radius: 0px;
-    }
-
-    .user-status li a:hover{
-        background-color: transparent;
-        transform: scale(1);
-    }
-
-    .user-component:hover .user-status{
-        opacity: 1;
-        transform: translateY(0px);
+    .content-header li a{
+        font-size: 16px;
+        border-radius: 8px;
     }
 
     main{
@@ -335,7 +228,7 @@
 
     .wapper-btn{
         width: 100%;
-        background-color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.9);
         color: #333;
         border-radius: 1rem;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
@@ -547,101 +440,17 @@
 </style>
 
 <body>
-<header>
-    <div class="content-header">
-        <a href=""> <i class="bi bi-cpu-fill"></i> RIO ARO Portal</a>
-        <nav>   
-            <div class="content-login">
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="wapper-login">
-                            <!-- COMPONENTE 1: SINCRONIZACIÓN (ESTILO GIT) -->
-                        <li class="content-sincronizador" id="sync-component" style="display: none;">
-                            <div role="group">
-                                <button onclick="performPull()" class="btn-pull" title="Bajar de Drive (Pull)">
-                                    <img src="/assets/icons/pull.png" alt="bajar" width="32px" height="32px">
-                                </button>
-                                <button onclick="performPush()" id="btn-push" class="btn-push" title="Subir a Drive (Push)">
-                                    <img src="/assets/icons/push.png" alt="bajar" width="32px" height="32px"> 
-                                </button>
-                            </div>
-                        </li>
-                        <!-- COMPONENTE 2: USUARIO -->
-                        <li class="user-component" id="user-component">
-                            <img class="user-icon" id="user-pic" src="" alt="" width="54px" height="54px">
-                            <ul class="user-status">
-                                <li><span id="user-name">Cargando...</span></li>
-                                <li><span class="dropdown-item-text text-muted" id="user-role"></span></li>
-                                <hr>
-                                <li><a class="dropdown-item text-danger" href="/logout">Cerrar Sesión</a></li>
-                            </ul>
-                        </li>
-                        <!-- Botón de Login (si no está logueado) -->
-                        <li id="login-item" style="display: none;">
-                            <a class="navbar-brand btn btn-danger" href="/login">Login con Google</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    checkUserStatus();
-                });
-
-                function checkUserStatus() {
-                    fetch('/api/user/status')
-                    .then(res => res.json())
-                    .then(user => {
-                        if (user.logged) {
-                            document.getElementById('user-component').style.display = 'block';
-                            document.getElementById('sync-component').style.display = 'block';
-                            document.getElementById('login-item').style.display = 'none';
-                            
-                            document.getElementById('user-name').innerText = user.name;
-                            document.getElementById('user-pic').src = user.picture;
-                            document.getElementById('user-role').innerText = "Rol: " + user.role;
-                            
-                        checkSyncDifference(); // Inicia revisión de Git
-                        } else {
-                            document.getElementById('user-component').style.display = 'none';
-                            document.getElementById('sync-component').style.display = 'none';
-                            document.getElementById('login-item').style.display = 'block';
-                        }
-                    });
-                }
-
-                function checkSyncDifference() {
-                    // Aquí el backend compararía las fechas (local vs remoto)
-                    fetch('/api/sync/status')
-                    .then(res => res.json())
-                    .then(status => {
-                        const icon = document.getElementById('sync-icon');
-                        const text = document.getElementById('sync-text');
-                        
-                        if (status.needsPull) {
-                            text.innerText = "Nueva versión en Drive";
-                            icon.className = "bi bi-cloud-arrow-down-fill text-warning";
-                        } else if (status.needsPush) {
-                            text.innerText = "Cambios locales pendientes";
-                            icon.className = "bi bi-cloud-arrow-up-fill text-info";
-                        }
-                    });
-                }
-
-                function performPush() {
-                    if(!confirm("¿Deseas subir los cambios locales a Google Drive?")) return;
-                    fetch('/api/sync/push', { method: 'POST' })
-                    .then(res => { if(res.ok) alert("¡Subida exitosa!"); location.reload(); });
-                }
-
-                function performPull() {
-                    if(!confirm("¿Deseas descargar la versión de Google Drive? Se perderán los cambios locales no subidos.")) return;
-                    fetch('/api/sync/pull', { method: 'POST' })
-                    .then(res => { if(res.ok) alert("¡Descarga exitosa!"); location.reload(); });
-                }
-            </script>
-        </nav>
-    </div>
-</header>
+    <header>
+        <div class="content-header">
+            <a href=""> <i class="bi bi-cpu-fill"></i> RIO ARO Portal</a>
+            <nav>
+                <ul>
+                    <li><a href="#funciones">Funciones</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
     
     <main>
         <div class="wapper-hero">
