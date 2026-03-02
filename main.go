@@ -2,140 +2,112 @@ package main
 
 import (
 	"bytes"
-	"context"
-	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"html/template"
 	"io"
 	"io/ioutil"
-	"net/http"
+	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"strings"
+
+	"encoding/json"
+	"net/http"
+	"os/exec"
 	"regexp"
 	"runtime"
-	"strconv"
-	"strings"
 	"time"
-
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/drive/v3"
-	"google.golang.org/api/option"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	wkhtml "github.com/SebastiaanKlippert/go-wkhtmltopdf" // Para PDF
 )
 
-// Google
-// Roles
-const (
-	RoleAdmin    = "admin"
-	RoleOperator = "operator"
-)
+// --- CONFIGURACIÓN DROPBOX ---
+const DROPBOX_TOKEN = "sl.u.AGQXLy0X9LTgzxU6MVV2JB3wrJvSF8FXOrzGxz4sw5u7uO9TGizc7QY4M705qtl_AhebScr_74iB8tulXuQF93-uPEF3T0YRWKcLnhtWJcDEjNVePyfSPtsPwiwragvPYa3j61AbASO5a1jI8gGt4iIkCcj7UDDPxxju4rEcga-WUIET1TeTc1kFBNplncc_nM9kd0K7df5Ai6bjyUhMHaNT7WTUoYVMCkQ1mCYbHu8HzDufTFoUr2yNo7ldyqyUb6HnysNaeF4LbEZ_TnK3wsuQOQ10x-18Gpn0-Ynmz08IPoVujlKus_IpKOCZiBVzpfpCzhd8iMA83sOVqMuTa0YLDqi9syOz7X5fq_wdIvhAFxzG3nnskioco6GPRlQEoYvzzUEJjtvwWa8iDX5jyUgIA89dMSTBTXKUcp9ia4h8NaDVWGFtMaVR2YJpLzsKRNy0bqiFcUI8ej_ITuaQPNJeQ5KRx67kSDrWXNfTYJHMl5_wX8Lofs0C0Twm_8RVuVlsycDy31eUEqJILapEE8QuZuuHMp5utustEtkrwYZR7T-9m--OcPv2C4Laq4ZBZn0cPxvzQJqxBXHUtAATugGktcok3E5fiq_swdnVAY-cnzFCVIV-OAaFVKmCxkzSR1VdkiBfYGsswEks4xK9TxXz3QEZYKUzNKEMtJNwsFqWoAhwg4SNf5fCAEBeYL8Vhwxd-aYE_FEuWpWi3BrBQNeFR5qV59nuhQTkSNRQCZAq_YSc7GMWCbMUBdIDAF0-W_AtpJfpbVj42GLQGvuDfwZX-5JUSM-KAZKQNBQScCHxcyWFT8ZQYlh_G_UbuzAbO40Ced6bO3zitdcBf_r8CsHQEfzKbj-d3kT1iAb3V9nwF536VXKRKd2CqfiAx6d4egK365goqDaomFoXmgnApkfHzufQ2jdpFmu2Bvvy2EqRzqZLaeOfuGyVnGDaa12sK-99o-dqD2VR0seRC0PYJYYwaZRs3ZSuL9YLrc7ej5fb-AAf38L7IbH8rr3J-lRqWL_jwXW8MQr0UMMnVp2tBXf6rhQpV362TGtziTb-chSX9ZW_Rbjg_Y5d9wcTxrdDjjIlvyo_jVnO5BK9bQ9qEySohxB9hlweJL8XoDJLOPrDGjJBoF83EeyEOymeMZbrrb2JuhuRHGj9tjOusZW7j8WVKFwlDPiXRd0S7Yni4lRZn9nKS20yHfpxZZ2bPyYLrwN6YZt1rRSvDQTQwHSw2v9eMUVXnGAKDRlT2elm7odUzIhY7G5nXq7BrA93suJDHzohKgdRfw5N-3I_1CEELg_kLyrRA_tsGZO4xhRx9EqIZpysrwEPMSvOqhdqwcKIo1oSq8Y9vEXSNQCPMvHZFpuh6hWi1B853Wd1mqVdQkl2IiF8Kv2AC-CBM3cjP9hgPWpred3-Rgxx9dqpQznMAa2qooBQJhUze0_aPJfc_cHpyTF2DYF0ifIZoVqFes2UiCw" // El token que generaste en Dropbox Developers
+const DROPBOX_FILE_PATH = "/CENSO GENERAL NUEVO.xlsx"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            // Ruta dentro de Dropbox
+// -----------------------------
 
-// Configuración de usuarios permitidos (Hardcoded como pediste)
-var authorizedUsers = map[string]string{
-	"sebastianalbertoruizvargas@gmail.com": RoleAdmin,
-	"silvaguerrajosecarlos@gmail.com":      RoleAdmin,
-	"operador1@gmail.com":                  RoleOperator,
-}
+// Variables globales nuevas
+const APP_KEY = "grsa7fthagyjn16"
+const APP_SECRET = "7e6br5qqqpcjp20"
+const REFRESH_TOKEN = "c9JQ3nw0Y5kAAAAAAAAAAaMoWRgVmdL-DkQhxj14D2ElvsCzUQSaZ6eKlrCdd613"
 
-type UserSession struct {
-	Email   string        `json:"email"`
-	Name    string        `json:"name"` // <-- Asegúrate de que esta línea existe
-	Picture string        `json:"picture"`
-	Role    string        `json:"role"`
-	Token   *oauth2.Token // Para mantener la conexión con Drive
-}
+// Función para obtener un token de acceso válido usando el Refresh Token
+func obtenerAccessToken() (string, error) {
+	url := "https://api.dropbox.com/oauth2/token"
+	data := "grant_type=refresh_token&refresh_token=" + REFRESH_TOKEN
 
-var (
-	googleOauthConfig *oauth2.Config
-	// Simulación de sesión simple (en producción usa cookies seguras o JWT)
-	activeSession *UserSession
-)
+	req, _ := http.NewRequest("POST", url, strings.NewReader(data))
+	req.SetBasicAuth(APP_KEY, APP_SECRET)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-// DriveService envuelve la conexión con Google
-type DriveSync struct {
-	Service *drive.Service
-	FileID  string // El ID del archivo Excel en la nube
-}
-
-func (ds *DriveSync) GetRemoteMetadata() (*drive.File, error) {
-	return ds.Service.Files.Get(ds.FileID).Fields("modifiedTime", "name", "id").Do()
-}
-
-// Función para subir el archivo (Commit/Push)
-func (ds *DriveSync) PushLocalToRemote() error {
-	f, err := os.Open(EXCEL_FILE)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	driveFile := &drive.File{}
-	_, err = ds.Service.Files.Update(ds.FileID, driveFile).Media(f).Do()
-	return err
-}
-
-// Función para descargar el archivo (Pull)
-func (ds *DriveSync) PullRemoteToLocal() error {
-	resp, err := ds.Service.Files.Get(ds.FileID).Download()
-	if err != nil {
-		return err
+		return "", err
 	}
 	defer resp.Body.Close()
 
-	out, err := os.Create(EXCEL_FILE)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
 
-	_, err = io.Copy(out, resp.Body)
-	return err
-}
-func AuthMiddleware(next http.HandlerFunc, requiredRole string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if activeSession == nil {
-			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
-			return
-		}
-
-		if requiredRole == RoleAdmin && activeSession.Role != RoleAdmin {
-			http.Error(w, "Acceso denegado: Se requieren permisos de Administrador", http.StatusForbidden)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	}
-}
-func init() {
-	// Carga las credenciales desde el archivo JSON
-	data, err := ioutil.ReadFile("credentials.json")
-	if err != nil {
-		fmt.Printf("Error leyendo credentials.json: %v\n", err)
-		return
-	}
-
-	conf, err := google.ConfigFromJSON(data,
-		drive.DriveFileScope,
-		"https://www.googleapis.com/auth/userinfo.email",
-		"https://www.googleapis.com/auth/userinfo.profile",
-	)
-	if err != nil {
-		fmt.Printf("Error configurando Google OAuth: %v\n", err)
-		return
-	}
-	googleOauthConfig = conf
+	return result["access_token"].(string), nil
 }
 
 // Excel
 const EXCEL_FILE = "CENSO GENERAL NUEVO.xlsx"
 const PRIMERA_HOJA = "CENSO"
 
-var historyLogs []string = []string{
-	"Sistema iniciado: " + time.Now().Format("2006-01-02 15:04:05"),
+const HISTORY_FILE = "history.json"
+const ACTIVITIES_FILE = "activities.json"
+
+// Carga los logs desde el archivo al iniciar el programa
+func loadLogsFromFile() {
+	if _, err := os.Stat(HISTORY_FILE); os.IsNotExist(err) {
+		return // Si el archivo no existe, no hace nada
+	}
+	data, err := ioutil.ReadFile(HISTORY_FILE)
+	if err != nil {
+		fmt.Println("Error al leer el archivo de historial:", err)
+		return
+	}
+	json.Unmarshal(data, &historyLogs)
+}
+
+type HistoryEntry struct {
+	User        string    `json:"user"`
+	Description string    `json:"description"`
+	Timestamp   time.Time `json:"timestamp"`
+}
+
+// Guarda los logs en el archivo cada vez que hay un cambio
+func saveLogsToFile() {
+	data, err := json.MarshalIndent(historyLogs, "", "  ")
+	if err != nil {
+		fmt.Println("Error al codificar el historial:", err)
+		return
+	}
+	err = ioutil.WriteFile(HISTORY_FILE, data, 0644)
+	if err != nil {
+		fmt.Println("Error al escribir el archivo de historial:", err)
+	}
+}
+
+var historyLogs []HistoryEntry
+
+func addLog(description string) {
+	entry := HistoryEntry{
+		User:        "Operador Dropbox",
+		Description: description,
+		Timestamp:   time.Now(),
+	}
+	// Agregamos al inicio del slice
+	historyLogs = append([]HistoryEntry{entry}, historyLogs...)
+
+	// GUARDAR EN DISCO
+	saveLogsToFile()
 }
 
 // --- INICIO DE LA MODIFICACIÓN ---
@@ -152,8 +124,13 @@ var containsSearchColumns = map[string]bool{
 // --- FIN DE LA MODIFICACIÓN ---
 
 // Galeria
+type ImageInfo struct {
+	Filename   string `json:"filename"`
+	UploadDate string `json:"upload_date"`
+}
+
 type GalleryData struct {
-	Images   []string
+	Images   []ImageInfo // Cambiado de []string a []ImageInfo
 	Messages []string
 }
 
@@ -238,6 +215,8 @@ func deleteRowHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("--- LOG: ¡Archivo Excel guardado exitosamente! ---")
 	w.WriteHeader(http.StatusOK)
+
+	addLog("Base de Datos: Se eliminó una fila")
 }
 
 func normalizeHeader(header string) string {
@@ -310,6 +289,8 @@ func bulkImportHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("--- LOG: ¡Importación en bloque completada y archivo guardado! ---")
 	w.WriteHeader(http.StatusOK)
+
+	addLog("Base de Datos: Importación de datos realizada")
 }
 
 // checkCedulasHandler (con logs detallados) recibe una lista de cédulas y devuelve las que ya existen.
@@ -466,6 +447,11 @@ func getColumns(w http.ResponseWriter, r *http.Request) {
 
 // Leer datos del Excel y paginarlos para DataTables (FUNCIÓN CORREGIDA)
 func getData(w http.ResponseWriter, r *http.Request) {
+	// Descargar antes de abrir el Excel para lectura
+	descargarDeDropbox()
+
+	f, err := excelize.OpenFile(EXCEL_FILE)
+
 	// Filtro global
 	search := strings.ToLower(r.URL.Query().Get("search[value]"))
 
@@ -478,7 +464,6 @@ func getData(w http.ResponseWriter, r *http.Request) {
 	filterColumnName := r.URL.Query().Get("filterColumn") // Ya viene limpio del frontend
 	filterValue := strings.ToLower(r.URL.Query().Get("filterValue"))
 
-	f, err := excelize.OpenFile(EXCEL_FILE)
 	if err != nil {
 		http.Error(w, "no se pudo abrir el Excel", 500)
 		return
@@ -593,6 +578,8 @@ type UpdateRequest struct {
 
 // updateExcelData
 func updateExcelData(w http.ResponseWriter, r *http.Request) {
+	descargarDeDropbox()
+
 	fmt.Println("--- LOG: Endpoint /api/update-excel invocado. ---")
 
 	var req struct {
@@ -652,8 +639,13 @@ func updateExcelData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 2. DESPUÉS DE GUARDAR LOCAL: Subir a Dropbox inmediatamente
+	go subirADropbox() // Usamos 'go' para que el usuario no tenga que esperar la subida
+
 	fmt.Println("--- LOG: ¡Archivo Excel guardado exitosamente! ---")
 	w.WriteHeader(http.StatusOK)
+
+	addLog("Base de Datos: Se guardaron cambios en el Excel")
 }
 
 // exportToExcel (FUNCIÓN CORREGIDA)
@@ -985,6 +977,39 @@ var activities = []Activity{
 }
 var lastActivityID = 2
 
+// Carga las actividades desde el archivo JSON al iniciar
+func loadActivitiesFromFile() {
+	if _, err := os.Stat(ACTIVITIES_FILE); os.IsNotExist(err) {
+		return // Si no existe, usamos el slice vacío por defecto
+	}
+	data, err := ioutil.ReadFile(ACTIVITIES_FILE)
+	if err != nil {
+		fmt.Println("Error al leer actividades:", err)
+		return
+	}
+	json.Unmarshal(data, &activities)
+
+	// Actualizar el ID autoincremental para no repetir IDs existentes
+	for _, a := range activities {
+		if a.ID > lastActivityID {
+			lastActivityID = a.ID
+		}
+	}
+}
+
+// Guarda el slice de actividades en el archivo JSON
+func saveActivitiesToFile() {
+	data, err := json.MarshalIndent(activities, "", "  ")
+	if err != nil {
+		fmt.Println("Error al codificar actividades:", err)
+		return
+	}
+	err = ioutil.WriteFile(ACTIVITIES_FILE, data, 0644)
+	if err != nil {
+		fmt.Println("Error al guardar actividades:", err)
+	}
+}
+
 func getActivitiesHandler(w http.ResponseWriter, r *http.Request) {
 	events := make([]map[string]interface{}, 0, len(activities))
 	for _, a := range activities {
@@ -1053,6 +1078,9 @@ func addActivityHandler(w http.ResponseWriter, r *http.Request) {
 	newActivity.ID = lastActivityID
 	activities = append(activities, newActivity)
 
+	saveActivitiesToFile()
+	addLog("Calendario: Se agregó la actividad " + newActivity.Title)
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
@@ -1115,6 +1143,9 @@ func editActivityHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+	saveActivitiesToFile()
+	addLog("Calendario: Se editó una actividad")
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
@@ -1139,6 +1170,9 @@ func deleteActivityHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+	saveActivitiesToFile()
+	addLog("Calendario: Se eliminó una actividad")
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
@@ -1149,21 +1183,67 @@ func getHistoryHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(historyLogs)
 }
 
+// Permite descargar el archivo físico real
+func downloadFullExcelHandler(w http.ResponseWriter, r *http.Request) {
+	if _, err := os.Stat(EXCEL_FILE); os.IsNotExist(err) {
+		http.Error(w, "Archivo no encontrado", http.StatusNotFound)
+		return
+	}
+	addLog("Exportación: Se descargó el archivo Excel completo")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+EXCEL_FILE+"\"")
+	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	http.ServeFile(w, r, EXCEL_FILE)
+}
+
+// Reemplaza el archivo local y lo sube a Dropbox
+func uploadFullExcelHandler(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, "Error en formulario", http.StatusBadRequest)
+		return
+	}
+
+	file, _, err := r.FormFile("excelFile")
+	if err != nil {
+		http.Error(w, "Archivo no encontrado", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	dst, err := os.Create(EXCEL_FILE)
+	if err != nil {
+		http.Error(w, "Error al crear archivo local", 500)
+		return
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, file); err != nil {
+		http.Error(w, "Error al guardar contenido", 500)
+		return
+	}
+
+	// Sincronizar con Dropbox inmediatamente
+	go subirADropbox()
+
+	addLog("Importación: Se reemplazó la base de datos completa y se subió a Dropbox")
+	w.WriteHeader(http.StatusOK)
+}
+
+func init() {
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dir := filepath.Dir(exePath)
+	os.Chdir(dir)
+}
+
 func main() {
 	os.MkdirAll(uploadDir, os.ModePerm)
-	// Rutas de Auth
-	http.HandleFunc("/login", handleGoogleLogin)
-	http.HandleFunc("/callback", handleGoogleCallback)
-	http.HandleFunc("/api/user/status", getUserStatus)
-	http.HandleFunc("/api/sync/status", getSyncStatus)
-	http.HandleFunc("/api/sync/pull", handlePull)
-	http.HandleFunc("/api/sync/push", handlePush)
 
-	// Cerrar sesión
-	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
-		activeSession = nil
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-	})
+	// CARGAR HISTORIAL PERSISTENTE
+	loadLogsFromFile()
+	loadActivitiesFromFile()
+
 	//  Rutas api
 	http.HandleFunc("/api/activities", getActivitiesHandler)
 	http.HandleFunc("/api/activities/add", addActivityHandler)
@@ -1187,6 +1267,12 @@ func main() {
 	http.HandleFunc("/api/update-excel", updateExcelData)
 	http.HandleFunc("/api/excel/columns", getColumns)
 	http.HandleFunc("/api/excel", getData)
+	http.HandleFunc("/api/excel/download-full", downloadFullExcelHandler)
+	http.HandleFunc("/api/excel/upload-full", uploadFullExcelHandler)
+
+	// Inicializar log
+	addLog("Sistema iniciado con sincronización Dropbox")
+
 	http.HandleFunc("/editar-hogar", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "paginas/editar_hogar.html")
 	})
@@ -1242,14 +1328,25 @@ func galleryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var images []string
+	// 1. Creamos el slice con el tipo correcto: ImageInfo
+	var images []ImageInfo
 	for _, file := range files {
 		if !file.IsDir() {
-			images = append(images, file.Name())
+			// 2. Llenamos con la estructura que el HTML espera
+			images = append(images, ImageInfo{
+				Filename:   file.Name(),
+				UploadDate: file.ModTime().Format("02/01/2006 03:04 PM"),
+			})
 		}
 	}
 
-	tmpl := template.Must(template.ParseFiles("paginas/galeria.html"))
+	tmpl, err := template.ParseFiles("paginas/galeria.html")
+	if err != nil {
+		http.Error(w, "Error al cargar plantilla: "+err.Error(), 500)
+		return
+	}
+
+	// 3. Aquí es donde daba el error: ahora Images coincide con []ImageInfo
 	data := GalleryData{
 		Images:   images,
 		Messages: []string{},
@@ -1286,6 +1383,8 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	io.Copy(dst, file)
 	http.Redirect(w, r, "/galeria", http.StatusSeeOther)
+
+	addLog("Galería: Nueva imagen subida")
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -1303,6 +1402,8 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/galeria", http.StatusSeeOther)
+
+	addLog("Galería: Imagen eliminada")
 }
 
 // getTreeData
@@ -1576,197 +1677,83 @@ func addHouseholdData(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// Google
-func handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
-	url := googleOauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-}
-func handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-	code := r.URL.Query().Get("code")
+// Descarga el archivo de Dropbox a la carpeta local
+func descargarDeDropbox() error {
+	fmt.Println("--- DROPBOX: Descargando última versión del Excel... ---")
 
-	// 1. Intercambiar código por Token
-	token, err := googleOauthConfig.Exchange(ctx, code)
+	// 1. OBTENER TOKEN NUEVO
+	token, err := obtenerAccessToken() // <--- CAMBIO
 	if err != nil {
-		http.Error(w, "Fallo al intercambiar token", http.StatusInternalServerError)
-		return
+		return fmt.Errorf("error al obtener token: %v", err)
 	}
 
-	// 2. Obtener información del usuario desde Google
-	client := googleOauthConfig.Client(ctx, token)
-	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	url := "https://content.dropboxapi.com/2/files/download"
+	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
-		http.Error(w, "Fallo al obtener datos de usuario", http.StatusInternalServerError)
-		return
+		return err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Dropbox-API-Arg", `{"path": "`+DROPBOX_FILE_PATH+`"}`)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
 	}
 	defer resp.Body.Close()
 
-	var userInfo struct {
-		Email   string `json:"email"`
-		Name    string `json:"name"`
-		Picture string `json:"picture"`
-	}
-	json.NewDecoder(resp.Body).Decode(&userInfo)
-
-	// 3. Verificar si el usuario está autorizado
-	role, authorized := authorizedUsers[userInfo.Email]
-	if !authorized {
-		// Usuario no está en la lista de los 3 permitidos
-		http.Redirect(w, r, "/?error=unauthorized", http.StatusTemporaryRedirect)
-		return
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error al descargar: %s", resp.Status)
 	}
 
-	// 4. Crear la sesión activa
-	activeSession = &UserSession{
-		Email:   userInfo.Email,
-		Name:    userInfo.Name,
-		Picture: userInfo.Picture,
-		Role:    role,
-		Token:   token, // <-- Agregamos el token aquí para poder usar Drive luego
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
 	}
 
-	// 5. Inicializar el servicio de Drive para este usuario
-	// (Opcional: aquí podrías buscar el archivo en Drive para tener el remoteFileID listo)
-	fmt.Printf("Usuario logueado: %s con rol %s\n", activeSession.Email, activeSession.Role)
+	fmt.Println("--- DROPBOX: Excel descargado ---")
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return ioutil.WriteFile(EXCEL_FILE, data, 0644)
 }
 
-// Estructura para informar al frontend del estado de sincronización
-type SyncStatus struct {
-	NeedsPull bool   `json:"needsPull"` // Hay algo nuevo en Drive
-	NeedsPush bool   `json:"needsPush"` // Hay algo nuevo local
-	LastSync  string `json:"lastSync"`
-}
+// Sube el archivo local a Dropbox (sobrescribe)
+func subirADropbox() error {
+	fmt.Println("--- DROPBOX: Subiendo cambios a la nube... ---")
 
-func getSyncStatus(w http.ResponseWriter, r *http.Request) {
-	if activeSession == nil {
-		http.Error(w, "No logueado", http.StatusUnauthorized)
-		return
-	}
-
-	// 1. Obtener info del archivo local
-	localInfo, err := os.Stat(EXCEL_FILE)
+	// 1. OBTENER TOKEN NUEVO
+	token, err := obtenerAccessToken() // <--- CAMBIO
 	if err != nil {
-		http.Error(w, "Archivo local no encontrado", 500)
-		return
-	}
-	localTime := localInfo.ModTime()
-
-	// 2. Lógica de comparación básica (Por ahora simulamos que no necesita Pull)
-	// Para evitar el error de "localTime declared and not used", imprimimos o comparamos:
-	fmt.Printf("Verificando sincronización. Fecha local: %v\n", localTime)
-
-	status := SyncStatus{
-		NeedsPull: false,
-		NeedsPush: true, // Asumimos push por defecto para probar
+		return fmt.Errorf("error al obtener token: %v", err)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(status)
-}
-
-// Obtiene el cliente de Drive usando el token de la sesión activa
-func getDriveService() (*drive.Service, error) {
-	if activeSession == nil || activeSession.Token == nil {
-		return nil, fmt.Errorf("no hay sesión activa")
-	}
-	ctx := context.Background()
-	return drive.NewService(ctx, option.WithTokenSource(googleOauthConfig.TokenSource(ctx, activeSession.Token)))
-}
-
-// Busca el archivo Excel en Drive o lo crea si no existe
-func getOrCreateDriveFile(srv *drive.Service) (string, error) {
-	query := fmt.Sprintf("name = '%s' and trashed = false", EXCEL_FILE)
-	list, err := srv.Files.List().Q(query).Do()
+	contenido, err := ioutil.ReadFile(EXCEL_FILE)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	if len(list.Files) > 0 {
-		return list.Files[0].Id, nil
-	}
-
-	// Si no existe, lo creamos subiendo la copia local actual
-	f, _ := os.Open(EXCEL_FILE)
-	defer f.Close()
-	driveFile, err := srv.Files.Create(&drive.File{Name: EXCEL_FILE}).Media(f).Do()
+	url := "https://content.dropboxapi.com/2/files/upload"
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(contenido))
 	if err != nil {
-		return "", err
-	}
-	return driveFile.Id, nil
-}
-
-// Handler para el PULL (Bajar de Drive a Local)
-func handlePull(w http.ResponseWriter, r *http.Request) {
-	srv, err := getDriveService()
-	if err != nil {
-		http.Error(w, err.Error(), 401)
-		return
+		return err
 	}
 
-	fileID, err := getOrCreateDriveFile(srv)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	// 'overwrite' permite que siempre se guarde la última versión
+	req.Header.Set("Dropbox-API-Arg", `{"path": "`+DROPBOX_FILE_PATH+`","mode": "overwrite"}`)
+	req.Header.Set("Content-Type", "application/octet-stream")
 
-	resp, err := srv.Files.Get(fileID).Download()
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+		return err
 	}
 	defer resp.Body.Close()
 
-	out, _ := os.Create(EXCEL_FILE)
-	defer out.Close()
-	io.Copy(out, resp.Body)
-
-	fmt.Println("Sincronización PULL completada.")
-	w.WriteHeader(http.StatusOK)
-}
-
-// Handler para el PUSH (Subir de Local a Drive)
-func handlePush(w http.ResponseWriter, r *http.Request) {
-	srv, err := getDriveService()
-	if err != nil {
-		http.Error(w, err.Error(), 401)
-		return
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error al subir: %s", resp.Status)
 	}
 
-	fileID, err := getOrCreateDriveFile(srv)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	f, _ := os.Open(EXCEL_FILE)
-	defer f.Close()
-
-	_, err = srv.Files.Update(fileID, &drive.File{}).Media(f).Do()
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	fmt.Println("Sincronización PUSH completada.")
-	w.WriteHeader(http.StatusOK)
-}
-
-// Handler para que el frontend sepa quién está logueado
-func getUserStatus(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	if activeSession == nil {
-		json.NewEncoder(w).Encode(map[string]interface{}{"logged": false})
-		return
-	}
-
-	// Enviamos los datos al frontend
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"logged":  true,
-		"email":   activeSession.Email,
-		"name":    activeSession.Name,
-		"picture": activeSession.Picture,
-		"role":    activeSession.Role,
-	})
+	fmt.Println("--- DROPBOX: Cambios subidos a Excel satisfactoriamente---")
+	return nil
 }

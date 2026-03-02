@@ -305,6 +305,15 @@
               <i class="bi bi-person-vcard"></i> Listado Votantes
             </a>
 
+            <button id="importarFull" class="btn btn-dark mt-3">
+    <i class="bi bi-file-earmark-arrow-up"></i> Importar Excel Completo
+  </button>
+  <input type="file" id="fileInputFull" style="display: none;" accept=".xlsx">
+
+  <button id="exportarFull" class="btn btn-success mt-3">
+    <i class="bi bi-file-earmark-arrow-down"></i> Descargar Excel Original
+  </button>
+
             <button id="filterButton" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#filterModal">
               <i class="bi bi-filter"></i> Filtrar
             </button>
@@ -592,23 +601,51 @@
         return;
       }
 
+      // 1. Guardamos el mensaje en una variable (instancia)
+      const syncToast = Toastify({ 
+        text: "Sincronizando con Dropbox... Por favor espere.", 
+        duration: -1, // No se quita solo
+        gravity: "bottom", 
+        position: "right", 
+        backgroundColor: "blue"
+      });
+
+      // 2. Lo mostramos
+      syncToast.showToast();
+
+      // 3. Desactivamos el botón para evitar que le den mil veces
+      const btnGuardar = document.getElementById("guardar");
+      btnGuardar.disabled = true;
+
       fetch("/api/update-excel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ datos })
       }).then(res => {
+        // 4. USAMOS EL MÉTODO OFICIAL PARA CERRARLO
+        syncToast.hideToast(); 
+        btnGuardar.disabled = false;
+
         if (res.ok) {
           Toastify({ 
-            text: "¡Cambios guardados exitosamente!", duration: 3000, gravity: "bottom", position: "right", backgroundColor: "green" 
+            text: "¡Guardado en Dropbox exitosamente!", 
+            duration: 3000, gravity: "bottom", position: "right", backgroundColor: "green" 
           }).showToast();
+
           pendingChanges = {};
           dataTableInstance.ajax.reload(null, false);
 
         } else {
           Toastify({ 
-            text: "Error guardando los cambios.", duration: 3000, gravity: "bottom", position: "right", backgroundColor: "red" 
+            text: "Error al sincronizar con la nube.", 
+            duration: 5000, gravity: "bottom", position: "right", backgroundColor: "red" 
           }).showToast();
         }
+        
+      }).catch(err => {
+        syncToast.hideToast();
+        btnGuardar.disabled = false;
+        alert("Error de conexión: " + err);
       });
     });
 
@@ -625,6 +662,53 @@
         alert("No hay cambios pendientes para descartar.");
       }
     });
+
+
+    // --- Lógica para Importación/Exportación Completa ---
+
+// Botón Exportar Original
+document.getElementById('exportarFull').addEventListener('click', function() {
+    window.location.href = '/api/excel/download-full';
+});
+
+// Botón Importar Original (Trigger del input oculto)
+document.getElementById('importarFull').addEventListener('click', function() {
+    if(confirm("¡Atención! Subir un archivo nuevo sobrescribirá toda la base de datos actual. ¿Deseas continuar?")) {
+        document.getElementById('fileInputFull').click();
+    }
+});
+
+// Manejo del cambio en el input de archivo
+document.getElementById('fileInputFull').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('excelFile', file);
+
+    // Mostrar mensaje de carga
+    Toastify({ text: "Subiendo y procesando base de datos...", duration: 3000, backgroundColor: "blue" }).showToast();
+
+    fetch('/api/excel/upload-full', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            Toastify({ text: "¡Base de datos reemplazada con éxito!", duration: 4000, backgroundColor: "green" }).showToast();
+            // Recargar la tabla para ver los nuevos datos
+            setTimeout(() => { location.reload(); }, 1500);
+        } else {
+            response.text().then(text => {
+                alert("Error: " + text);
+            });
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error en la conexión al subir el archivo.");
+    });
+});
   </script>
 </body>
 </html>
